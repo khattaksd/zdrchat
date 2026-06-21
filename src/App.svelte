@@ -13,6 +13,7 @@
   import Sidebar from './lib/components/Sidebar.svelte';
   import ModelPicker from './lib/components/ModelPicker.svelte';
   import SettingsPanel from './lib/components/SettingsPanel.svelte';
+  import MaskedInput from './lib/components/MaskedInput.svelte';
 
   // Reactive: $chatStore etc auto-subscribe in templates
   // For imperative reads in script, use get() or local $state mirrors
@@ -399,6 +400,13 @@
     setSetting('apiKey', key);
     initClient(key);
   }
+
+  function handleWelcomeSubmit() {
+    if (keyInputText.trim()) {
+      handleApiKeySubmit(keyInputText);
+      keyInputText = '';
+    }
+  }
 </script>
 
 {#if !_apiKey}
@@ -412,21 +420,16 @@
       <h1 class="welcome-title">Your Private AI</h1>
       <p class="welcome-tagline">No account · No servers · No tracking</p>
 
-      <form class="welcome-input-row" onsubmit={(e) => { e.preventDefault(); if (keyInputText.trim()) { handleApiKeySubmit(keyInputText); keyInputText = ''; } }}>
-        <input
-          type="password"
-          class="welcome-key-input"
-          placeholder="Paste your OpenRouter key"
-          bind:value={keyInputText}
-        />
+      <div class="welcome-input-row">
+        <MaskedInput bind:value={keyInputText} placeholder="Paste your OpenRouter key" name="openrouter_key" onkeydown={(e) => { if (e.key === 'Enter') handleWelcomeSubmit(); }} />
         <button
-          type="submit"
           class="welcome-connect-btn"
           disabled={!keyInputText.trim()}
+          onclick={handleWelcomeSubmit}
         >
           Connect
         </button>
-      </form>
+      </div>
 
       <p class="welcome-key-note">
         🔑 Your key stays in this browser. Never sent anywhere except to OpenRouter.
@@ -698,17 +701,11 @@
     margin-bottom: 16px;
     max-width: 500px;
     margin-left: auto; margin-right: auto;
+    --mi-font-size: 16px;
+    --mi-py: 12px;
+    --mi-px: 16px;
+    --mi-radius: 10px;
   }
-  .welcome-key-input {
-    flex: 1;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid var(--border); background: var(--input-bg);
-    color: var(--text);
-    font-size: 16px;
-    font-family: monospace;
-  }
-  .welcome-key-input:focus { outline: none; border-color: var(--accent); }
   .welcome-connect-btn {
     padding: 12px 24px;
     border-radius: 10px; border: none;

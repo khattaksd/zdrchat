@@ -9,9 +9,13 @@
     onClose = () => {},
   } = $props();
 
+  import MaskedInput from './MaskedInput.svelte';
   // svelte-ignore state_referenced_locally
   let localKey = $state(apiKey);
-  let showKey = $state(false);
+
+  function handleKeySubmit() {
+    if (localKey.trim()) onUpdateKey(localKey);
+  }
 
   const themes = [
     { value: 'dark', label: '🌙 Dark' },
@@ -38,18 +42,8 @@
     <section class="section">
       <h4>API Key</h4>
       <div class="key-row">
-        <div class="key-input-wrapper">
-          <input
-            type={showKey ? 'text' : 'password'}
-            bind:value={localKey}
-            placeholder="sk-or-v1-..."
-            class="input"
-          />
-          <button class="toggle-vis" onclick={() => showKey = !showKey}>
-            {showKey ? '🙈' : '👁️'}
-          </button>
-        </div>
-        <button class="btn-sm" onclick={() => onUpdateKey(localKey)} disabled={!localKey.trim()}>Update</button>
+        <MaskedInput bind:value={localKey} placeholder="sk-or-v1-..." name="openrouter_key" onkeydown={(e) => { if (e.key === 'Enter') handleKeySubmit(); }} />
+        <button class="btn-sm" disabled={!localKey.trim()} onclick={handleKeySubmit}>Update</button>
       </div>
       <p class="note">🔑 Stored in your browser only. Never sent anywhere except to OpenRouter.</p>
     </section>
@@ -124,11 +118,6 @@
   .section { margin-bottom: 24px; }
   .section h4 { margin: 0 0 12px; font-size: 14px; opacity: 0.8; }
   .key-row { display: flex; gap: 8px; }
-  .key-input-wrapper { flex: 1; display: flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); overflow: hidden; }
-  .input { flex: 1; padding: 8px 12px; border: none; background: none; color: var(--text); font-size: 13px; font-family: monospace; }
-  .input:focus { outline: none; }
-  .toggle-vis { background: none; border: none; padding: 8px; cursor: pointer; opacity: 0.5; font-size: 14px; }
-  .toggle-vis:hover { opacity: 1; }
   .btn-sm { padding: 8px 14px; border-radius: 8px; border: none; background: var(--accent); color: white; font-size: 13px; cursor: pointer; white-space: nowrap; }
   .btn-sm:disabled { opacity: 0.4; cursor: not-allowed; }
   .note { font-size: 12px; opacity: 0.5; margin: 8px 0 0; }
