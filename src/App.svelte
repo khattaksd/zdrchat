@@ -19,6 +19,7 @@
 
   let client: OpenRouterClient | null = null;
   let inputText = $state('');
+  let keyInputText = $state('');
   let showSidebar = $state(true);
   let showModelPicker = $state(false);
   let showSettings = $state(false);
@@ -400,25 +401,74 @@
   }
 </script>
 
-<div class="app-shell">
+{#if !_apiKey}
+  <!-- Full-screen welcome overlay -->
+  <div class="welcome-overlay">
+    <div class="welcome-center">
+      <svg class="welcome-logo" viewBox="0 0 100 100">
+        <rect width="100" height="100" rx="20" fill="#10B981"/>
+        <text x="50" y="68" font-family="system-ui, sans-serif" font-size="52" font-weight="bold" fill="#0F172A" text-anchor="middle">Z</text>
+      </svg>
+      <h1 class="welcome-title">Your Private AI</h1>
+      <p class="welcome-tagline">No account · No servers · No tracking</p>
+
+      <div class="welcome-input-row">
+        <input
+          type="password"
+          class="welcome-key-input"
+          placeholder="Paste your OpenRouter key"
+          bind:value={keyInputText}
+          onkeydown={(e) => { if (e.key === 'Enter') { handleApiKeySubmit(keyInputText); keyInputText = ''; } }}
+        />
+        <button
+          class="welcome-connect-btn"
+          disabled={!keyInputText.trim()}
+          onclick={() => { handleApiKeySubmit(keyInputText); keyInputText = ''; }}
+        >
+          Connect
+        </button>
+      </div>
+
+      <p class="welcome-key-note">
+        🔑 Your key stays in this browser. Never sent anywhere except to OpenRouter.
+      </p>
+      <p class="welcome-cta">
+        Need a key? <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">Get one at openrouter.ai</a>
+      </p>
+
+      <div class="welcome-footer">
+        <div class="welcome-footer-tagline">Made for the privacy-conscious</div>
+        <div class="welcome-footer-links">
+          <a href="https://zdr.chat" target="_blank" rel="noopener">zdr.chat</a>
+          <span class="welcome-dot">·</span>
+          <a href="https://github.com/khattaksd/zdrchat" target="_blank" rel="noopener">GitHub</a>
+          <span class="welcome-dot">·</span>
+          <a href="https://openrouter.ai/settings/privacy" target="_blank" rel="noopener">Privacy</a>
+        </div>
+      </div>
+    </div>
+    <span class="welcome-build">{__BUILD_TIME__}</span>
+  </div>
+{:else}
+  <div class="app-shell">
   <!-- Header -->
   <header class="header">
     <div class="header-left">
-      <button class="btn-icon" on:click={() => showSidebar = !showSidebar} title="Toggle sidebar">
+      <button class="btn-icon" onclick={() => showSidebar = !showSidebar} title="Toggle sidebar">
         <span class="icon">☰</span>
       </button>
     </div>
 
     <div class="header-center">
-      <a href="/" class="logo" title="zdr.chat — Zero Data Retention chat">
+      <a href="https://zdr.chat" target="_blank" rel="noopener" class="logo" title="ZDR Chat — visit zdr.chat">
         <span class="logo-zdr">ZDR</span><span class="logo-dot">.</span><span class="logo-chat">chat</span>
       </a>
     </div>
 
     <div class="header-right">
-      <button class="btn-icon" on:click={() => showSettings = !showSettings} title="Settings">⚙️</button>
-      <button class="btn-icon" on:click={toggleTheme} title="Toggle theme">🎨</button>
-      <button class="btn-icon" on:click={toggleDensity} title="Density: {_density}">
+      <button class="btn-icon" onclick={() => showSettings = !showSettings} title="Settings">⚙️</button>
+      <button class="btn-icon" onclick={toggleTheme} title="Toggle theme">🎨</button>
+      <button class="btn-icon" onclick={toggleDensity} title="Density: {_density}">
         {#if _density === 'tight'}📏{:else if _density === 'cozy'}📐{:else}📖{/if}
       </button>
     </div>
@@ -459,12 +509,12 @@
                 class="key-input"
                 placeholder="sk-or-v1-..."
                 bind:value={inputText}
-                on:keydown={(e) => { if (e.key === 'Enter') { handleApiKeySubmit(inputText); inputText = ''; } }}
+                onkeydown={(e) => { if (e.key === 'Enter') { handleApiKeySubmit(inputText); inputText = ''; } }}
               />
               <button
                 class="btn-primary"
                 disabled={!inputText.trim()}
-                on:click={() => { handleApiKeySubmit(inputText); inputText = ''; }}
+                onclick={() => { handleApiKeySubmit(inputText); inputText = ''; }}
               >Connect</button>
             </div>
             <p class="key-note">🔑 Your key stays on this device. Never sent anywhere except to OpenRouter.</p>
@@ -484,13 +534,13 @@
               class="chat-input"
               placeholder="Type your message..."
               bind:value={inputText}
-              on:keydown={handleKeydown}
+              onkeydown={handleKeydown}
               rows="1"
             ></textarea>
             <button
               class="btn-send"
               disabled={!inputText.trim() || _streaming}
-              on:click={sendMessage}
+              onclick={sendMessage}
             >➤</button>
           </div>
         </div>
@@ -539,14 +589,14 @@
             class="chat-input"
             placeholder="Type your message..."
             bind:value={inputText}
-            on:keydown={handleKeydown}
+            onkeydown={handleKeydown}
             disabled={_streaming}
             rows="1"
           ></textarea>
           <button
             class="btn-send"
             disabled={!inputText.trim() || _streaming}
-            on:click={sendMessage}
+            onclick={sendMessage}
           >➤</button>
         </div>
       {/if}
@@ -606,8 +656,88 @@
     />
   {/if}
 </div>
+{/if}
 
 <style>
+  .welcome-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .welcome-center {
+    text-align: center;
+    max-width: clamp(400px, 42vw, 700px);
+    width: 100%;
+    padding: clamp(20px, 3vw, 48px);
+  }
+  .welcome-logo {
+    margin-bottom: clamp(20px, 3vw, 40px);
+    display: block; margin-left: auto; margin-right: auto;
+    width: clamp(80px, 9vw, 150px);
+    height: auto;
+  }
+  .welcome-title {
+    margin: 0 0 clamp(8px, 1vw, 16px);
+    font-size: clamp(28px, 3.5vw, 64px);
+    font-weight: 700;
+    color: var(--text);
+  }
+  .welcome-tagline {
+    margin: 0 0 clamp(24px, 3.5vw, 48px);
+    font-size: clamp(15px, 1.8vw, 30px);
+    color: var(--text-secondary); opacity: 0.7;
+  }
+  .welcome-input-row {
+    display: flex; gap: 8px;
+    margin-bottom: 16px;
+    max-width: 500px;
+    margin-left: auto; margin-right: auto;
+  }
+  .welcome-key-input {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border); background: var(--input-bg);
+    color: var(--text);
+    font-size: 16px;
+    font-family: monospace;
+  }
+  .welcome-key-input:focus { outline: none; border-color: var(--accent); }
+  .welcome-connect-btn {
+    padding: 12px 24px;
+    border-radius: 10px; border: none;
+    background: var(--accent); color: white;
+    font-size: 16px;
+    font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .welcome-connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .welcome-key-note {
+    font-size: clamp(13px, 1.2vw, 20px);
+    opacity: 0.55; margin: 0 0 clamp(16px, 2.5vw, 36px);
+  }
+  .welcome-cta {
+    font-size: clamp(14px, 1.3vw, 22px);
+    margin: 0 0 clamp(32px, 5vw, 72px);
+  }
+  .welcome-cta a { color: var(--accent); text-decoration: none; }
+  .welcome-cta a:hover { text-decoration: underline; }
+  .welcome-footer {
+    font-size: clamp(13px, 1.1vw, 18px);
+    color: var(--text-secondary); opacity: 0.5;
+    display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 0.6vw, 10px);
+  }
+  .welcome-footer-tagline { opacity: 0.8; }
+  .welcome-footer-links { display: flex; align-items: center; gap: clamp(4px, 0.6vw, 10px); }
+  .welcome-footer a { color: inherit; text-decoration: none; }
+  .welcome-footer a:hover { opacity: 0.8; }
+  .welcome-dot { opacity: 0.4; }
+  .welcome-build {
+    position: fixed; bottom: clamp(8px, 1.2vw, 24px); right: clamp(12px, 1.5vw, 32px);
+    font-family: monospace;
+    font-size: clamp(11px, 0.9vw, 15px);
+    opacity: 0.45;
+    color: var(--text);
+  }
   .app-shell { display: flex; flex-direction: column; height: 100vh; background: var(--bg); color: var(--text); }
 
   .header {
