@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { online = true, modelName = '', tokensIn = 0, tokensOut = 0, cost = 0, creditBalance = null as number | null, zdrOnly = true, noTraining = true } = $props();
+  let { online = true, modelName = '', tokensIn = 0, tokensOut = 0, cost = 0, creditBalance = null as number | null } = $props();
 
   function formatTokens(n: number): string {
     if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
@@ -13,14 +13,10 @@
 
   let healthColor = $derived(online ? 'var(--accent)' : '#ef4444');
   let healthLabel = $derived(online ? 'live' : 'offline');
-  let badge = $derived(zdrOnly && noTraining ? '🔒 ZDR' : zdrOnly ? '🔒 ZDR' : noTraining ? '🚫 No train' : '');
 </script>
 
 <footer class="status-bar">
   <div class="status-left">
-    {#if badge}
-      <span class="privacy-badge" title="Privacy: {zdrOnly ? 'ZDR enabled' : 'ZDR off'} / {noTraining ? 'No training' : 'Training not restricted'}">{badge}</span>
-    {/if}
     <span class="status-model" title="Current model">{modelName || 'No model selected'}</span>
   </div>
 

@@ -20,7 +20,6 @@ export class OpenRouterClient {
   async fetchCredits(): Promise<{ total: number; used: number; free: number; payg: number }> {
     try {
       const res: any = await this.sdk.credits.getCredits();
-      // SDK may return { credits: { ... } } or the credits directly
       const c = res?.data ?? res?.credits ?? res ?? {};
       return {
         total: c.total ?? 0,
@@ -33,74 +32,80 @@ export class OpenRouterClient {
     }
   }
 
+  async fetchKeyInfo(): Promise<{ isFreeTier: boolean; expiresAt: string | null }> {
+    try {
+      const res = await fetch('https://openrouter.ai/api/v1/auth/key', {
+        headers: { Authorization: 'Bearer ' + (this.sdk as any).apiKey },
+      });
+      if (!res.ok) return { isFreeTier: true, expiresAt: null };
+      const d = await res.json();
+      return {
+        isFreeTier: d?.data?.is_free_tier ?? true,
+        expiresAt: d?.data?.expires_at ?? null,
+      };
+    } catch {
+      return { isFreeTier: true, expiresAt: null };
+    }
+  }
+
   /**
-   * Streaming chat completion using the official OpenRouter SDK.
-   *
-   * Usage matches the SDK docs at https://github.com/OpenRouterTeam/typescript-sdk
-   *
-   * ```ts
-   * const result = await client.chat.send({
-   *   model: "openai/gpt-5",
-   *   messages: [{ role: "user", content: "Hello" }],
-   *   stream: true,
-   *   provider: { zdr: true, sort: "price" },
-   * });
-   * for await (const chunk of result) { ... }
-   * ```
+   * Streaming chat completion via the official OpenRouter SDK.
+   * Note: We do NOT send provider.zdr or dataCollection per-request.
+   * Those settings should be configured at the OpenRouter account level:
+   * https://openrouter.ai/settings/privacy
    */
   async *streamCompletion(params: {
     model: string;
     messages: { role: string; content: string | any[] }[];
-    zdrOnly?: boolean;
-    noTraining?: boolean;
   }): AsyncGenerator<{ content: string; done: boolean; usage?: { prompt_tokens: number; completion_tokens: number } }> {
-    // Build provider preferences matching SDK's ProviderPreferences
-    const provider: Record<string, any> = {};
-    if (params.zdrOnly) provider.zdr = true;
-    if (params.noTraining) provider.dataCollection = 'deny';
-
-    // Wrap in chatRequest as SDK's Zod validation expects:
-    // { chatRequest: { model, messages, stream, provider: { zdr, dataCollection } } }
-    const body: Record<string, any> = {
+    const body = {
       chatRequest: {
         model: params.model,
         messages: params.messages,
         stream: true,
       },
     };
-    if (Object.keys(provider).length > 0) {
-      body.chatRequest.provider = provider;
-    }
 
-    // Send — returns EventStream<ChatStreamChunk> directly
-    const stream: any = await this.sdk.chat.send(body);
+    try {
+      const stream: any = await this.sdk.chat.send(body);
 
-    // Iterate over stream chunks
-    for await (const chunk of stream) {
-      const choice = chunk?.choices?.[0];
-      if (!choice) continue;
+      for await (const chunk of stream) {
+        const choice = chunk?.choices?.[0];
+        if (!choice) continue;
 
-      const delta = choice.delta?.content ?? '';
-      const finishReason = choice.finish_reason;
+        const delta = choice.delta?.content ?? '';
+        const finishReason = choice.finish_reason;
 
-      if (delta || finishReason != null) {
-        yield {
-          content: delta,
-          done: finishReason != null,
-          usage: chunk.usage ? {
-            prompt_tokens: chunk.usage.prompt_tokens ?? 0,
-            completion_tokens: chunk.usage.completion_tokens ?? 0,
-          } : undefined,
-        };
+        if (delta || finishReason != null) {
+          yield {
+            content: delta,
+            done: finishReason != null,
+            usage: chunk.usage ? {
+              prompt_tokens: chunk.usage.prompt_tokens ?? 0,
+              completion_tokens: chunk.usage.completion_tokens ?? 0,
+            } : undefined,
+          };
+        }
       }
+    } catch (err: any) {
+      const status = err?.status || err?.cause?.status;
+      const msg = err?.message || String(err);
+
+      // Detect account-level ZDR enforcement
+      if (msg.includes('No endpoints found matching your data policy') || msg.includes('data policy')) {
+        throw new Error(
+          'ZDR_ENFORCED:Your OpenRouter account has Zero Data Retention enforced globally.\n' +
+          'Only ZDR-compliant models are available.\n' +
+          'Configure this at: https://openrouter.ai/settings/privacy'
+        );
+      }
+
+      // Rate limit
+      if (status === 429 || msg.includes('429') || msg.includes('Too Many Requests')) {
+        throw new Error('Rate limited by OpenRouter. Please wait a moment before sending another message.');
+      }
+
+      throw err;
     }
-  } catch (err: any) {
-    // Handle rate limits with a clear message
-    const status = err?.status || err?.cause?.status;
-    const msg = err?.message || String(err);
-    if (status === 429 || msg.includes('429') || msg.includes('Too Many Requests')) {
-      throw new Error('Rate limited by OpenRouter. Please wait a moment before sending another message. Free tier limits are lower — try a free model or add credits to your OpenRouter account.');
-    }
-    throw err;
   }
 }

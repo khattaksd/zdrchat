@@ -6,22 +6,13 @@
     models = [] as Model[],
     buckets = {} as Record<string, Model[]>,
     currentModel = '',
-    zdrOnly = false,
-    noTraining = false,
     onSelect = (_id: string) => {},
     onClose = () => {},
   } = $props();
 
   let activeTab = $state('smartest');
   let filteredModels = $derived(
-    (buckets[activeTab] || []).filter(m => {
-      if (zdrOnly) {
-        // Basic ZDR filter: prefer known-safe providers
-        const safe = ['anthropic', 'google', 'amazon', 'mistral', 'cohere', 'deepinfra', 'together', 'groq'];
-        return safe.some(p => m.id.startsWith(p));
-      }
-      return true;
-    })
+    (buckets[activeTab] || [])
   );
 
   let allModels = $derived(

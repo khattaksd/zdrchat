@@ -2,13 +2,9 @@
   let {
     apiKey = '',
     theme = 'dark',
-    zdrOnly = true,
-    noTraining = true,
     creditBalance = null as number | null,
     storageInfo = {} as Record<string, any>,
     onUpdateKey = (_key: string) => {},
-    onUpdateZdr = (_v: boolean) => {},
-    onUpdateNoTraining = (_v: boolean) => {},
     onUpdateTheme = (_t: string) => {},
     onClose = () => {},
   } = $props();
@@ -73,15 +69,18 @@
     <!-- Privacy -->
     <section class="section">
       <h4>🔒 Privacy</h4>
-      <label class="toggle-row">
-        <span>Only use models with Zero Data Retention (ZDR)</span>
-        <input type="checkbox" checked={zdrOnly} on:change={(e) => onUpdateZdr(e.currentTarget.checked)} />
-      </label>
-      <label class="toggle-row">
-        <span>Only use models that don't train on your data</span>
-        <input type="checkbox" checked={noTraining} on:change={(e) => onUpdateNoTraining(e.currentTarget.checked)} />
-      </label>
-      <p class="note">When enabled, your requests only route to providers that meet these criteria.</p>
+      <p class="note" style="margin-bottom: 12px;">
+        Data retention and training policies are controlled at your OpenRouter account level.
+        Configure them once and they apply to all requests from this key.
+      </p>
+      <a
+        href="https://openrouter.ai/settings/privacy"
+        target="_blank"
+        rel="noopener"
+        class="privacy-link"
+      >
+        ⚙️ OpenRouter Privacy Settings →
+      </a>
     </section>
 
     <!-- Account -->
@@ -133,4 +132,11 @@
   }
   .toggle-row input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
   .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; opacity: 0.7; }
+  .privacy-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font-size: 13px;
+    text-decoration: none; cursor: pointer;
+  }
+  .privacy-link:hover { border-color: var(--accent); }
 </style>

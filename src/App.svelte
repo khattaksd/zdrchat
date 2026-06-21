@@ -143,6 +143,9 @@
     for (const b of MODEL_BUCKETS) buckets[b.key] = [];
     buckets.other = [];
 
+    // Sort helper: context_length descending (most capable first), fallback to name
+    const sortByCapability = (a: Model, b: Model) => (b.context_length || 0) - (a.context_length || 0) || a.id.localeCompare(b.id);
+
     for (const m of models) {
       const id = m.id;
       const isFree = id.endsWith(':free');
@@ -159,6 +162,17 @@
       if (isCode && !isSmart && !isFast) buckets.code.push(m);
       if (isVision && !buckets.smartest.includes(m) && !buckets.fast.includes(m)) buckets.vision.push(m);
       if (!isFree && !isSmart && !isFast && !isCreative && !isCode && !isVision) buckets.other.push(m);
+    }
+
+    // Sort each bucket by capability descending
+    for (const key of Object.keys(buckets)) {
+      buckets[key].sort(sortByCapability);
+    }
+
+    // Limit Smartest to top 10, others to top 30
+    buckets.smartest = buckets.smartest.slice(0, 10);
+    for (const key of Object.keys(buckets)) {
+      if (key !== 'smartest') buckets[key] = buckets[key].slice(0, 30);
     }
 
     modelsByBucket = buckets;
@@ -211,8 +225,6 @@
         stream = client.streamCompletion({
           model: _defaultModel,
           messages: apiMessages as any,
-          zdrOnly: _zdrOnly,
-          noTraining: _noTraining,
         });
 
         for await (const chunk of stream) {
@@ -227,7 +239,8 @@
           }
         }
       } catch (err: any) {
-        _error = err.message || 'Stream failed';
+        const rawMsg = err.message || 'Stream failed';
+        _error = rawMsg.startsWith('ZDR_ENFORCED:') ? rawMsg.replace('ZDR_ENFORCED:', '') : rawMsg;
         chatStore.setError(_error);
         _streaming = false;
         chatStore.setIsStreaming(false);
@@ -482,8 +495,6 @@
     tokensOut={_tokensOut}
     cost={_sessionCost}
     creditBalance={_creditBalance}
-    zdrOnly={_zdrOnly}
-    noTraining={_noTraining}
   />
 
   <!-- Model Picker Overlay -->
@@ -492,8 +503,6 @@
       models={_models}
       buckets={modelsByBucket}
       currentModel={_defaultModel}
-      zdrOnly={_zdrOnly}
-      noTraining={_noTraining}
       onSelect={(modelId: string) => {
         _defaultModel = modelId;
         settingsStore.setDefaultModel(modelId);
@@ -511,8 +520,6 @@
     <SettingsPanel
       apiKey={_apiKey}
       theme={_theme}
-      zdrOnly={_zdrOnly}
-      noTraining={_noTraining}
       creditBalance={_creditBalance}
       storageInfo={{ conversations: _conversations.length }}
       onUpdateKey={(key: string) => {
@@ -520,16 +527,6 @@
         settingsStore.setApiKey(key);
         setSetting('apiKey', key);
         initClient(key);
-      }}
-      onUpdateZdr={(v: boolean) => {
-        _zdrOnly = v;
-        settingsStore.setZdrOnly(v);
-        setSetting('zdrOnly', v);
-      }}
-      onUpdateNoTraining={(v: boolean) => {
-        _noTraining = v;
-        settingsStore.setNoTraining(v);
-        setSetting('noTraining', v);
       }}
       onUpdateTheme={(t: string) => {
         _theme = t;
