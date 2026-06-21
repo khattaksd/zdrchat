@@ -421,11 +421,10 @@
       <p class="welcome-tagline">No account · No servers · No tracking</p>
 
       <form class="welcome-input-row" onsubmit={handleWelcomeSubmit}>
-        <!-- Hidden username field required by Chromium for password form accessibility -->
-        <input type="text" name="username" autocomplete="username" hidden value="openrouter-key" />
         <input
-          type="password"
-          autocomplete="new-password"
+          type="text"
+          inputmode="text"
+          autocomplete="off"
           name="openrouter_key"
           class="welcome-key-input"
           placeholder="Paste your OpenRouter key"
@@ -719,6 +718,7 @@
     color: var(--text);
     font-size: 16px;
     font-family: monospace;
+    -webkit-text-security: disc;
   }
   .welcome-key-input:focus { outline: none; border-color: var(--accent); }
   .welcome-connect-btn {

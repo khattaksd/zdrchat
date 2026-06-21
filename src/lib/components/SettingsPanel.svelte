@@ -45,13 +45,13 @@
       <form class="key-row" onsubmit={handleKeySubmit}>
         <input type="text" name="username" autocomplete="username" hidden value="openrouter-key" />
           <input
-            type={showKey ? 'text' : 'password'}
-            autocomplete={showKey ? 'off' : 'new-password'}
+            type="text"
+            autocomplete="off"
             name="openrouter_key"
             bind:value={localKey}
             placeholder="sk-or-v1-..."
             class="input"
-          />
+            class:masked={!showKey}
           <button class="toggle-vis" onclick={() => showKey = !showKey}>
             {showKey ? '🙈' : '👁️'}
           </button>
@@ -134,6 +134,7 @@
   .key-input-wrapper { flex: 1; display: flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); overflow: hidden; }
   .input { flex: 1; padding: 8px 12px; border: none; background: none; color: var(--text); font-size: 13px; font-family: monospace; }
   .input:focus { outline: none; }
+  .input.masked { -webkit-text-security: disc; }
   .toggle-vis { background: none; border: none; padding: 8px; cursor: pointer; opacity: 0.5; font-size: 14px; }
   .toggle-vis:hover { opacity: 1; }
   .btn-sm { padding: 8px 14px; border-radius: 8px; border: none; background: var(--accent); color: white; font-size: 13px; cursor: pointer; white-space: nowrap; }
