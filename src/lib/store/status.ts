@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { writable } from 'svelte/store';
 import type { Model } from '../api/types';
 
 export interface StatusState {
@@ -9,32 +9,34 @@ export interface StatusState {
   connectionStatus: 'connected' | 'degraded' | 'offline';
   creditBalance: number | null;
   isOnline: boolean;
-  setCurrentModel: (m: Model | null) => void;
-  addTokens: (inTokens: number, outTokens: number, cost: number) => void;
-  resetSession: () => void;
-  setConnectionStatus: (s: 'connected' | 'degraded' | 'offline') => void;
-  setCreditBalance: (b: number | null) => void;
-  setIsOnline: (v: boolean) => void;
 }
 
-export const useStatusStore = create<StatusState>((set) => ({
-  currentModel: null,
-  sessionTokensIn: 0,
-  sessionTokensOut: 0,
-  sessionCost: 0,
-  connectionStatus: 'connected',
-  creditBalance: null,
-  isOnline: true,
+function createStatusStore() {
+  const { subscribe, update } = writable<StatusState>({
+    currentModel: null,
+    sessionTokensIn: 0,
+    sessionTokensOut: 0,
+    sessionCost: 0,
+    connectionStatus: 'connected',
+    creditBalance: null,
+    isOnline: true,
+  });
 
-  setCurrentModel: (currentModel) => set({ currentModel }),
-  addTokens: (tokensIn, tokensOut, cost) =>
-    set((s) => ({
-      sessionTokensIn: s.sessionTokensIn + tokensIn,
-      sessionTokensOut: s.sessionTokensOut + tokensOut,
-      sessionCost: s.sessionCost + cost,
-    })),
-  resetSession: () => set({ sessionTokensIn: 0, sessionTokensOut: 0, sessionCost: 0 }),
-  setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
-  setCreditBalance: (creditBalance) => set({ creditBalance }),
-  setIsOnline: (isOnline) => set({ isOnline }),
-}));
+  return {
+    subscribe,
+    setCurrentModel: (currentModel: Model | null) => update(s => ({ ...s, currentModel })),
+    addTokens: (tokensIn: number, tokensOut: number, cost: number) =>
+      update(s => ({
+        ...s,
+        sessionTokensIn: s.sessionTokensIn + tokensIn,
+        sessionTokensOut: s.sessionTokensOut + tokensOut,
+        sessionCost: s.sessionCost + cost,
+      })),
+    resetSession: () => update(s => ({ ...s, sessionTokensIn: 0, sessionTokensOut: 0, sessionCost: 0 })),
+    setConnectionStatus: (connectionStatus: 'connected' | 'degraded' | 'offline') => update(s => ({ ...s, connectionStatus })),
+    setCreditBalance: (creditBalance: number | null) => update(s => ({ ...s, creditBalance })),
+    setIsOnline: (isOnline: boolean) => update(s => ({ ...s, isOnline })),
+  };
+}
+
+export const statusStore = createStatusStore();

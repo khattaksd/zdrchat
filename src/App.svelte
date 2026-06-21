@@ -1,84 +1,138 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { useChatStore } from './lib/store/chat';
-  import { useSettingsStore } from './lib/store/settings';
-  import { useStatusStore } from './lib/store/status';
+  import { get } from 'svelte/store';
+  import { chatStore } from './lib/store/chat';
+  import { settingsStore } from './lib/store/settings';
+  import { statusStore } from './lib/store/status';
   import { OpenRouterClient } from './lib/api/openrouter';
   import { db, createConversation, addMessage, getConversationMessages, getSetting, setSetting } from './lib/db/dexie';
   import type { Conversation, Message } from './lib/db/dexie';
-  import type { Model, ModelBucket } from './lib/api/types';
+  import type { Model } from './lib/api/types';
   import { MODEL_BUCKETS } from './lib/api/types';
   import StatusBar from './lib/components/StatusBar.svelte';
   import Sidebar from './lib/components/Sidebar.svelte';
   import ModelPicker from './lib/components/ModelPicker.svelte';
   import SettingsPanel from './lib/components/SettingsPanel.svelte';
 
-  const chat = useChatStore();
-  const settings = useSettingsStore();
-  const status = useStatusStore();
+  // Reactive: $chatStore etc auto-subscribe in templates
+  // For imperative reads in script, use get() or local $state mirrors
 
   let client: OpenRouterClient | null = null;
-  let inputText = '';
-  let showSidebar = true;
-  let showModelPicker = false;
-  let showSettings = false;
-  let themeMenuOpen = false;
-  let messagesEnd: HTMLDivElement;
-  let inputEl: HTMLTextAreaElement;
-  let modelsByBucket: Record<string, Model[]> = {};
+  let inputText = $state('');
+  let showSidebar = $state(true);
+  let showModelPicker = $state(false);
+  let showSettings = $state(false);
+  let messagesEnd: HTMLDivElement | undefined = $state();
+  let inputEl: HTMLTextAreaElement | undefined = $state();
+  let modelsByBucket: Record<string, Model[]> = $state({});
 
-  // Initialize
+  // Local mirrors for reactive script access (templates use $chatStore directly)
+  let _streaming = $state(false);
+  let _streamingContent = $state('');
+  let _error: string | null = $state(null);
+  let _messages: Message[] = $state([]);
+  let _activeConvId: string | null = $state(null);
+  let _conversations: Conversation[] = $state([]);
+  let _apiKey = $state('');
+  let _defaultModel = $state('');
+  let _models: Model[] = $state([]);
+  let _zdrOnly = $state(true);
+  let _noTraining = $state(true);
+  let _theme: string = $state('dark');
+  let _creditBalance: number | null = $state(null);
+  let _online = $state(true);
+  let _tokensIn = $state(0);
+  let _tokensOut = $state(0);
+  let _sessionCost = $state(0);
+
+  // Sync from stores on mount
   onMount(async () => {
-    // Load settings from IndexedDB
+    const s = get(settingsStore);
+    _apiKey = s.apiKey;
+    _theme = s.theme;
+    _defaultModel = s.defaultModel;
+    _zdrOnly = s.zdrOnly;
+    _noTraining = s.noTraining;
+    _creditBalance = s.creditBalance;
+    _models = s.models;
+
+    const c = get(chatStore);
+    _conversations = c.conversations;
+    _activeConvId = c.activeConversationId;
+    _messages = c.messages;
+    _streaming = c.isStreaming;
+    _streamingContent = c.streamingContent;
+    _error = c.error;
+
+    const st = get(statusStore);
+    _online = st.isOnline;
+    _tokensIn = st.sessionTokensIn;
+    _tokensOut = st.sessionTokensOut;
+    _sessionCost = st.sessionCost;
+
+    // Load persisted settings
     const savedKey = await getSetting('apiKey', '');
     const savedTheme = await getSetting('theme', 'dark');
     const savedModel = await getSetting('defaultModel', '');
     const savedZdr = await getSetting('zdrOnly', true);
     const savedNoTrain = await getSetting('noTraining', true);
 
-    if (savedKey) settings.setApiKey(savedKey);
-    settings.setTheme(savedTheme);
-    if (savedModel) settings.setDefaultModel(savedModel);
-    settings.setZdrOnly(savedZdr);
-    settings.setNoTraining(savedNoTrain);
-
+    if (savedKey) {
+      _apiKey = savedKey;
+      settingsStore.setApiKey(savedKey);
+    }
+    _theme = savedTheme;
+    settingsStore.setTheme(savedTheme as any);
     applyTheme(savedTheme);
+    if (savedModel) {
+      _defaultModel = savedModel;
+      settingsStore.setDefaultModel(savedModel);
+    }
+    _zdrOnly = savedZdr;
+    settingsStore.setZdrOnly(savedZdr);
+    _noTraining = savedNoTrain;
+    settingsStore.setNoTraining(savedNoTrain);
 
     // Load conversations
     const convs = await db.conversations.orderBy('updatedAt').reverse().toArray();
-    chat.setConversations(convs);
+    _conversations = convs;
+    chatStore.setConversations(convs);
 
     // If there's a key, initialize client
     if (savedKey) {
       await initClient(savedKey);
     }
 
-    settings.setIsInitialized(true);
+    settingsStore.setIsInitialized(true);
 
     // Online/offline detection
-    status.setIsOnline(navigator.onLine);
-    window.addEventListener('online', () => status.setIsOnline(true));
-    window.addEventListener('offline', () => status.setIsOnline(false));
+    _online = navigator.onLine;
+    statusStore.setIsOnline(navigator.onLine);
+    window.addEventListener('online', () => { _online = true; statusStore.setIsOnline(true); });
+    window.addEventListener('offline', () => { _online = false; statusStore.setIsOnline(false); });
   });
 
   async function initClient(key: string) {
     client = new OpenRouterClient(key);
     try {
       const models = await client.fetchModels();
-      settings.setModels(models);
+      _models = models;
+      settingsStore.setModels(models);
       categorizeModels(models);
 
-      // Set default model if not already set
-      if (!settings.defaultModel && models.length > 0) {
+      if (!_defaultModel && models.length > 0) {
         const smartModel = models.find(m => m.id.includes('claude-sonnet') || m.id.includes('gpt-4o'));
-        settings.setDefaultModel(smartModel?.id || models[0].id);
-        status.setCurrentModel(models.find(m => m.id === (smartModel?.id || models[0].id)) || null);
+        const id = smartModel?.id || models[0].id;
+        _defaultModel = id;
+        settingsStore.setDefaultModel(id);
+        const found = models.find(m => m.id === id);
+        if (found) statusStore.setCurrentModel(found);
       }
 
-      // Fetch credits
       const credits = await client.fetchCredits();
-      settings.setCreditBalance(credits.total);
-      status.setCreditBalance(credits.total);
+      _creditBalance = credits.total;
+      settingsStore.setCreditBalance(credits.total);
+      statusStore.setCreditBalance(credits.total);
     } catch (e) {
       console.error('Failed to initialize API client:', e);
     }
@@ -112,86 +166,98 @@
 
   async function sendMessage() {
     const text = inputText.trim();
-    if (!text || !client || chat.isStreaming) return;
+    if (!text || !client || _streaming) return;
 
     try {
-      // Create conversation if none active
-      let convId = chat.activeConversationId;
+      let convId = _activeConvId;
       if (!convId) {
-        const conv = await createConversation(settings.defaultModel, text.slice(0, 50));
+        const conv = await createConversation(_defaultModel, text.slice(0, 50));
         convId = conv.id;
-        chat.setActiveConversation(conv.id);
-        chat.setConversations([conv, ...chat.conversations]);
+        _activeConvId = conv.id;
+        chatStore.setActiveConversation(conv.id);
+        _conversations = [conv, ..._conversations];
+        chatStore.setConversations(_conversations);
       }
 
       inputText = '';
-      chat.setError(null);
+      _error = null;
+      chatStore.setError(null);
 
-      // Add user message
       const userMsg = await addMessage({
         conversationId: convId,
         role: 'user',
         content: text,
-        modelId: settings.defaultModel,
+        modelId: _defaultModel,
       });
-      chat.addMessage(userMsg);
+      _messages = [..._messages, userMsg];
+      chatStore.addMessage(userMsg);
 
-      // Build messages array for API
       const allMsgs = await getConversationMessages(convId);
-      const apiMessages = allMsgs.map(m => ({
-        role: m.role,
-        content: m.content,
-      }));
+      const apiMessages = allMsgs.map(m => ({ role: m.role, content: m.content }));
 
-      // Add system prompt if set
-      const conv = chat.conversations.find(c => c.id === convId);
+      const conv = _conversations.find(c => c.id === convId);
       if (conv?.systemPrompt) {
         apiMessages.unshift({ role: 'system', content: conv.systemPrompt });
       }
 
-      // Stream response
-      chat.setIsStreaming(true);
-      chat.setStreamingContent('');
+      _streaming = true;
+      _streamingContent = '';
+      chatStore.setIsStreaming(true);
+      chatStore.setStreamingContent('');
       let fullContent = '';
 
-      const stream = client.streamCompletion({
-        model: settings.defaultModel,
-        messages: apiMessages,
-        zdrOnly: settings.zdrOnly,
-        noTraining: settings.noTraining,
-      });
+      let stream;
+      try {
+        stream = client.streamCompletion({
+          model: _defaultModel,
+          messages: apiMessages as any,
+          zdrOnly: _zdrOnly,
+          noTraining: _noTraining,
+        });
 
-      for await (const chunk of stream) {
-        fullContent += chunk.content;
-        chat.appendStreamingContent(chunk.content);
+        for await (const chunk of stream) {
+          fullContent += chunk.content;
+          _streamingContent += chunk.content;
+          chatStore.appendStreamingContent(chunk.content);
 
-        if (chunk.done && chunk.usage) {
-          status.addTokens(chunk.usage.prompt_tokens, chunk.usage.completion_tokens, 0);
+          if (chunk.done && chunk.usage) {
+            _tokensIn += chunk.usage.prompt_tokens;
+            _tokensOut += chunk.usage.completion_tokens;
+            statusStore.addTokens(chunk.usage.prompt_tokens, chunk.usage.completion_tokens, 0);
+          }
         }
+      } catch (err: any) {
+        _error = err.message || 'Stream failed';
+        chatStore.setError(_error);
+        _streaming = false;
+        chatStore.setIsStreaming(false);
+        return;
       }
 
-      // Save assistant message
       const assistantMsg = await addMessage({
         conversationId: convId,
         role: 'assistant',
         content: fullContent || '(no response)',
-        modelId: settings.defaultModel,
+        modelId: _defaultModel,
       });
-      chat.addMessage(assistantMsg);
-      chat.setStreamingContent('');
+      _messages = [..._messages, assistantMsg];
+      chatStore.addMessage(assistantMsg);
+      _streamingContent = '';
+      chatStore.setStreamingContent('');
 
-      // Auto-generate title from first exchange
       if (allMsgs.length <= 1) {
         const title = text.length > 60 ? text.slice(0, 57) + '...' : text;
         await db.conversations.update(convId, { title });
-        chat.setConversations(chat.conversations.map(c => c.id === convId ? { ...c, title } : c));
+        _conversations = _conversations.map(c => c.id === convId ? { ...c, title } : c);
+        chatStore.setConversations(_conversations);
       }
 
     } catch (err: any) {
-      chat.setError(err.message || 'Something went wrong');
+      _error = err.message || 'Something went wrong';
+      chatStore.setError(_error);
     } finally {
-      chat.setIsStreaming(false);
-      // Scroll to bottom
+      _streaming = false;
+      chatStore.setIsStreaming(false);
       setTimeout(() => messagesEnd?.scrollIntoView({ behavior: 'smooth' }), 50);
     }
   }
@@ -204,19 +270,29 @@
   }
 
   async function selectConversation(id: string) {
-    chat.setActiveConversation(id);
+    _activeConvId = id;
+    chatStore.setActiveConversation(id);
     const msgs = await getConversationMessages(id);
-    chat.setMessages(msgs);
-    chat.setError(null);
+    _messages = msgs;
+    chatStore.setMessages(msgs);
+    _error = null;
+    chatStore.setError(null);
     setTimeout(() => messagesEnd?.scrollIntoView({ behavior: 'smooth' }), 100);
   }
 
   async function newConversation() {
-    chat.setActiveConversation(null);
-    chat.setMessages([]);
-    chat.setStreamingContent('');
-    chat.setError(null);
-    status.resetSession();
+    _activeConvId = null;
+    chatStore.setActiveConversation(null);
+    _messages = [];
+    chatStore.setMessages([]);
+    _streamingContent = '';
+    chatStore.setStreamingContent('');
+    _error = null;
+    chatStore.setError(null);
+    statusStore.resetSession();
+    _tokensIn = 0;
+    _tokensOut = 0;
+    _sessionCost = 0;
   }
 
   function applyTheme(theme: string) {
@@ -225,21 +301,22 @@
 
   function toggleTheme() {
     const themes = ['dark', 'light', 'sepia', 'nord', 'catppuccin', 'tokyo-night'];
-    const idx = themes.indexOf(settings.theme);
+    const idx = themes.indexOf(_theme);
     const next = themes[(idx + 1) % themes.length];
-    settings.setTheme(next as any);
+    _theme = next;
+    settingsStore.setTheme(next as any);
     applyTheme(next);
     setSetting('theme', next);
-    themeMenuOpen = false;
   }
 
   function getModelDisplay(id: string): string {
-    const model = settings.models.find(m => m.id === id);
+    const model = _models.find(m => m.id === id);
     return model?.name || id.split('/').pop() || id;
   }
 
   function handleApiKeySubmit(key: string) {
-    settings.setApiKey(key);
+    _apiKey = key;
+    settingsStore.setApiKey(key);
     setSetting('apiKey', key);
     initClient(key);
   }
@@ -257,7 +334,7 @@
 
     <div class="header-center">
       <button class="model-selector" on:click={() => showModelPicker = !showModelPicker}>
-        <span class="model-name">{getModelDisplay(settings.defaultModel)}</span>
+        <span class="model-name">{getModelDisplay(_defaultModel)}</span>
         <span class="chevron">▼</span>
       </button>
     </div>
@@ -272,8 +349,8 @@
     <!-- Sidebar -->
     {#if showSidebar}
       <Sidebar
-        conversations={chat.conversations}
-        activeId={chat.activeConversationId}
+        conversations={_conversations}
+        activeId={_activeConvId}
         onSelect={selectConversation}
         onNew={newConversation}
       />
@@ -281,7 +358,7 @@
 
     <!-- Main content -->
     <main class="main-content">
-      {#if !settings.apiKey}
+      {#if !_apiKey}
         <!-- Welcome / Key Entry -->
         <div class="welcome">
           <div class="welcome-card">
@@ -314,7 +391,7 @@
             <p class="key-note">🔑 Your key stays on this device. Never sent anywhere except to OpenRouter.</p>
           </div>
         </div>
-      {:else if !chat.activeConversationId && chat.messages.length === 0}
+      {:else if !_activeConvId && _messages.length === 0}
         <!-- Empty state -->
         <div class="empty-state">
           <div class="empty-content">
@@ -333,7 +410,7 @@
             ></textarea>
             <button
               class="btn-send"
-              disabled={!inputText.trim() || chat.isStreaming}
+              disabled={!inputText.trim() || _streaming}
               on:click={sendMessage}
             >➤</button>
           </div>
@@ -341,7 +418,7 @@
       {:else}
         <!-- Chat messages -->
         <div class="messages-area">
-          {#each chat.messages as msg (msg.id)}
+          {#each _messages as msg (msg.id)}
             <div class="message" class:user={msg.role === 'user'} class:assistant={msg.role === 'assistant'}>
               <div class="message-avatar">{msg.role === 'user' ? '🧑' : '🤖'}</div>
               <div class="message-content">
@@ -354,21 +431,21 @@
           {/each}
 
           <!-- Streaming message -->
-          {#if chat.isStreaming && chat.streamingContent}
+          {#if _streaming && _streamingContent}
             <div class="message assistant">
               <div class="message-avatar">🤖</div>
               <div class="message-content">
-                <div class="message-text streaming">{chat.streamingContent}<span class="cursor">|</span></div>
+                <div class="message-text streaming">{_streamingContent}<span class="cursor">|</span></div>
               </div>
             </div>
           {/if}
 
           <!-- Error -->
-          {#if chat.error}
+          {#if _error}
             <div class="message error">
               <div class="message-avatar">⚠️</div>
               <div class="message-content">
-                <div class="message-text error-text">{chat.error}</div>
+                <div class="message-text error-text">{_error}</div>
               </div>
             </div>
           {/if}
@@ -384,12 +461,12 @@
             placeholder="Type your message..."
             bind:value={inputText}
             on:keydown={handleKeydown}
-            disabled={chat.isStreaming}
+            disabled={_streaming}
             rows="1"
           ></textarea>
           <button
             class="btn-send"
-            disabled={!inputText.trim() || chat.isStreaming}
+            disabled={!inputText.trim() || _streaming}
             on:click={sendMessage}
           >➤</button>
         </div>
@@ -399,28 +476,29 @@
 
   <!-- Status Bar -->
   <StatusBar
-    online={status.isOnline}
-    modelName={getModelDisplay(settings.defaultModel)}
-    tokensIn={status.sessionTokensIn}
-    tokensOut={status.sessionTokensOut}
-    cost={status.sessionCost}
-    creditBalance={status.creditBalance}
-    zdrOnly={settings.zdrOnly}
-    noTraining={settings.noTraining}
+    online={_online}
+    modelName={getModelDisplay(_defaultModel)}
+    tokensIn={_tokensIn}
+    tokensOut={_tokensOut}
+    cost={_sessionCost}
+    creditBalance={_creditBalance}
+    zdrOnly={_zdrOnly}
+    noTraining={_noTraining}
   />
 
   <!-- Model Picker Overlay -->
   {#if showModelPicker}
     <ModelPicker
-      models={settings.models}
+      models={_models}
       buckets={modelsByBucket}
-      currentModel={settings.defaultModel}
-      zdrOnly={settings.zdrOnly}
-      noTraining={settings.noTraining}
+      currentModel={_defaultModel}
+      zdrOnly={_zdrOnly}
+      noTraining={_noTraining}
       onSelect={(modelId: string) => {
-        settings.setDefaultModel(modelId);
-        const model = settings.models.find(m => m.id === modelId);
-        if (model) status.setCurrentModel(model);
+        _defaultModel = modelId;
+        settingsStore.setDefaultModel(modelId);
+        const model = _models.find(m => m.id === modelId);
+        if (model) statusStore.setCurrentModel(model);
         setSetting('defaultModel', modelId);
         showModelPicker = false;
       }}
@@ -431,27 +509,31 @@
   <!-- Settings Panel -->
   {#if showSettings}
     <SettingsPanel
-      apiKey={settings.apiKey}
-      theme={settings.theme}
-      zdrOnly={settings.zdrOnly}
-      noTraining={settings.noTraining}
-      creditBalance={settings.creditBalance}
-      storageInfo={{ conversations: chat.conversations.length }}
+      apiKey={_apiKey}
+      theme={_theme}
+      zdrOnly={_zdrOnly}
+      noTraining={_noTraining}
+      creditBalance={_creditBalance}
+      storageInfo={{ conversations: _conversations.length }}
       onUpdateKey={(key: string) => {
-        settings.setApiKey(key);
+        _apiKey = key;
+        settingsStore.setApiKey(key);
         setSetting('apiKey', key);
         initClient(key);
       }}
       onUpdateZdr={(v: boolean) => {
-        settings.setZdrOnly(v);
+        _zdrOnly = v;
+        settingsStore.setZdrOnly(v);
         setSetting('zdrOnly', v);
       }}
       onUpdateNoTraining={(v: boolean) => {
-        settings.setNoTraining(v);
+        _noTraining = v;
+        settingsStore.setNoTraining(v);
         setSetting('noTraining', v);
       }}
       onUpdateTheme={(t: string) => {
-        settings.setTheme(t as any);
+        _theme = t;
+        settingsStore.setTheme(t as any);
         applyTheme(t);
         setSetting('theme', t);
       }}

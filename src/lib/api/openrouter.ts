@@ -6,21 +6,12 @@ export class OpenRouterClient {
   private _models: Model[] | null = null;
 
   constructor(apiKey: string) {
-    this.sdk = new OpenRouterSDK({
-      apiKey,
-      // Use a consistent referer for rankings
-      baseServer: { url: 'https://openrouter.ai/api/v1' },
-    });
-  }
-
-  get raw(): OpenRouterSDK {
-    return this.sdk;
+    this.sdk = new OpenRouterSDK({ apiKey });
   }
 
   async fetchModels(force = false): Promise<Model[]> {
     if (this._models && !force) return this._models;
     const res = await this.sdk.models.list();
-    // The SDK returns typed data; extract model IDs as our Model type
     const models = (res as any)?.data ?? res ?? [];
     this._models = models as Model[];
     return this._models;
@@ -28,8 +19,9 @@ export class OpenRouterClient {
 
   async fetchCredits(): Promise<{ total: number; used: number; free: number; payg: number }> {
     try {
-      const res = await this.sdk.credits.getCredits();
-      const c = (res as any)?.credits ?? res ?? {};
+      const res: any = await this.sdk.credits.getCredits();
+      // SDK may return { credits: { ... } } or the credits directly
+      const c = res?.data ?? res?.credits ?? res ?? {};
       return {
         total: c.total ?? 0,
         used: c.used ?? 0,
@@ -41,18 +33,20 @@ export class OpenRouterClient {
     }
   }
 
-  async fetchZdrEndpoints(): Promise<Set<string>> {
-    try {
-      const res = await this.sdk.endpoints.listZdrEndpoints();
-      const endpoints = Array.isArray(res) ? res : (res as any)?.data ?? [];
-      return new Set<string>(endpoints.map((e: any) => e.model_id).filter(Boolean));
-    } catch {
-      return new Set();
-    }
-  }
-
   /**
-   * Streaming chat completion via the SDK.
+   * Streaming chat completion using the official OpenRouter SDK.
+   *
+   * Usage matches the SDK docs at https://github.com/OpenRouterTeam/typescript-sdk
+   *
+   * ```ts
+   * const result = await client.chat.send({
+   *   model: "openai/gpt-5",
+   *   messages: [{ role: "user", content: "Hello" }],
+   *   stream: true,
+   *   provider: { zdr: true, sort: "price" },
+   * });
+   * for await (const chunk of result) { ... }
+   * ```
    */
   async *streamCompletion(params: {
     model: string;
@@ -60,40 +54,45 @@ export class OpenRouterClient {
     zdrOnly?: boolean;
     noTraining?: boolean;
   }): AsyncGenerator<{ content: string; done: boolean; usage?: { prompt_tokens: number; completion_tokens: number } }> {
-    const providerOpts: Record<string, any> = {};
-    if (params.zdrOnly) providerOpts.zdr = true;
-    if (params.noTraining) providerOpts.data_collection = 'deny';
+    // Build provider preferences matching SDK's ProviderPreferences
+    const provider: Record<string, any> = {};
+    if (params.zdrOnly) provider.zdr = true;
+    if (params.noTraining) provider.dataCollection = 'deny';
 
+    // Wrap in chatRequest as SDK's Zod validation expects:
+    // { chatRequest: { model, messages, stream, provider: { zdr, dataCollection } } }
     const body: Record<string, any> = {
-      model: params.model,
-      messages: params.messages,
-      stream: true,
+      chatRequest: {
+        model: params.model,
+        messages: params.messages,
+        stream: true,
+      },
     };
-    if (Object.keys(providerOpts).length) body.provider = providerOpts;
+    if (Object.keys(provider).length > 0) {
+      body.chatRequest.provider = provider;
+    }
 
-    try {
-      const stream = await this.sdk.chat.send(body) as AsyncIterable<any>;
+    // Send — returns EventStream<ChatStreamChunk> directly
+    const stream: any = await this.sdk.chat.send(body);
 
-      for await (const chunk of stream) {
-        const choice = chunk?.choices?.[0];
-        if (!choice) continue;
+    // Iterate over stream chunks
+    for await (const chunk of stream) {
+      const choice = chunk?.choices?.[0];
+      if (!choice) continue;
 
-        const delta = choice.delta?.content ?? '';
-        const done = choice.finish_reason !== null && choice.finish_reason !== undefined;
+      const delta = choice.delta?.content ?? '';
+      const finishReason = choice.finish_reason;
 
-        if (delta || done) {
-          yield {
-            content: delta,
-            done,
-            usage: chunk.usage ? {
-              prompt_tokens: chunk.usage.prompt_tokens ?? 0,
-              completion_tokens: chunk.usage.completion_tokens ?? 0,
-            } : undefined,
-          };
-        }
+      if (delta || finishReason != null) {
+        yield {
+          content: delta,
+          done: finishReason != null,
+          usage: chunk.usage ? {
+            prompt_tokens: chunk.usage.prompt_tokens ?? 0,
+            completion_tokens: chunk.usage.completion_tokens ?? 0,
+          } : undefined,
+        };
       }
-    } catch (err: any) {
-      throw new Error(err?.message || String(err));
     }
   }
 }
