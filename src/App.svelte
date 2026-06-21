@@ -688,24 +688,26 @@
     color: var(--text-secondary); opacity: 0.7;
   }
   .welcome-input-row {
-    display: flex; gap: clamp(8px, 1vw, 16px);
-    margin-bottom: clamp(12px, 1.5vw, 24px);
+    display: flex; gap: 8px;
+    margin-bottom: 16px;
+    max-width: 500px;
+    margin-left: auto; margin-right: auto;
   }
   .welcome-key-input {
     flex: 1;
-    padding: clamp(12px, 1.5vw, 24px) clamp(16px, 2vw, 32px);
-    border-radius: clamp(10px, 1.2vw, 16px);
+    padding: 12px 16px;
+    border-radius: 10px;
     border: 1px solid var(--border); background: var(--input-bg);
     color: var(--text);
-    font-size: clamp(15px, 1.4vw, 24px);
+    font-size: 16px;
     font-family: monospace;
   }
   .welcome-key-input:focus { outline: none; border-color: var(--accent); }
   .welcome-connect-btn {
-    padding: clamp(12px, 1.5vw, 24px) clamp(24px, 3vw, 48px);
-    border-radius: clamp(10px, 1.2vw, 16px); border: none;
+    padding: 12px 24px;
+    border-radius: 10px; border: none;
     background: var(--accent); color: white;
-    font-size: clamp(15px, 1.4vw, 24px);
+    font-size: 16px;
     font-weight: 600; cursor: pointer; white-space: nowrap;
   }
   .welcome-connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
