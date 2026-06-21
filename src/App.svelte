@@ -405,7 +405,7 @@
   <!-- Full-screen welcome overlay -->
   <div class="welcome-overlay">
     <div class="welcome-center">
-      <svg class="welcome-logo" viewBox="0 0 100 100" width="80" height="80">
+      <svg class="welcome-logo" viewBox="0 0 100 100">
         <rect width="100" height="100" rx="20" fill="#10B981"/>
         <text x="50" y="68" font-family="system-ui, sans-serif" font-size="52" font-weight="bold" fill="#0F172A" text-anchor="middle">Z</text>
       </svg>
@@ -665,47 +665,75 @@
     display: flex; align-items: center; justify-content: center;
   }
   .welcome-center {
-    text-align: center; max-width: 440px; padding: 24px;
+    text-align: center;
+    max-width: clamp(400px, 42vw, 700px);
+    width: 100%;
+    padding: clamp(20px, 3vw, 48px);
   }
-  .welcome-logo { margin-bottom: 24px; display: block; margin-left: auto; margin-right: auto; }
+  .welcome-logo {
+    margin-bottom: clamp(20px, 3vw, 40px);
+    display: block; margin-left: auto; margin-right: auto;
+    width: clamp(80px, 9vw, 150px);
+    height: auto;
+  }
   .welcome-title {
-    margin: 0 0 8px; font-size: 28px; font-weight: 700;
+    margin: 0 0 clamp(8px, 1vw, 16px);
+    font-size: clamp(28px, 3.5vw, 64px);
+    font-weight: 700;
     color: var(--text);
   }
   .welcome-tagline {
-    margin: 0 0 32px; font-size: 15px; color: var(--text-secondary); opacity: 0.7;
+    margin: 0 0 clamp(24px, 3.5vw, 48px);
+    font-size: clamp(15px, 1.8vw, 30px);
+    color: var(--text-secondary); opacity: 0.7;
   }
   .welcome-input-row {
-    display: flex; gap: 8px; margin-bottom: 16px;
+    display: flex; gap: clamp(8px, 1vw, 16px);
+    margin-bottom: clamp(12px, 1.5vw, 24px);
   }
   .welcome-key-input {
-    flex: 1; padding: 12px 16px; border-radius: 10px;
+    flex: 1;
+    padding: clamp(12px, 1.5vw, 24px) clamp(16px, 2vw, 32px);
+    border-radius: clamp(10px, 1.2vw, 16px);
     border: 1px solid var(--border); background: var(--input-bg);
-    color: var(--text); font-size: 15px; font-family: monospace;
+    color: var(--text);
+    font-size: clamp(15px, 1.4vw, 24px);
+    font-family: monospace;
   }
   .welcome-key-input:focus { outline: none; border-color: var(--accent); }
   .welcome-connect-btn {
-    padding: 12px 24px; border-radius: 10px; border: none;
-    background: var(--accent); color: white; font-size: 15px;
+    padding: clamp(12px, 1.5vw, 24px) clamp(24px, 3vw, 48px);
+    border-radius: clamp(10px, 1.2vw, 16px); border: none;
+    background: var(--accent); color: white;
+    font-size: clamp(15px, 1.4vw, 24px);
     font-weight: 600; cursor: pointer; white-space: nowrap;
   }
   .welcome-connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .welcome-key-note { font-size: 13px; opacity: 0.55; margin: 0 0 24px; }
-  .welcome-cta { font-size: 14px; margin: 0 0 40px; }
+  .welcome-key-note {
+    font-size: clamp(13px, 1.2vw, 20px);
+    opacity: 0.55; margin: 0 0 clamp(16px, 2.5vw, 36px);
+  }
+  .welcome-cta {
+    font-size: clamp(14px, 1.3vw, 22px);
+    margin: 0 0 clamp(32px, 5vw, 72px);
+  }
   .welcome-cta a { color: var(--accent); text-decoration: none; }
   .welcome-cta a:hover { text-decoration: underline; }
   .welcome-footer {
-    font-size: 13px; color: var(--text-secondary); opacity: 0.5;
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    font-size: clamp(13px, 1.1vw, 18px);
+    color: var(--text-secondary); opacity: 0.5;
+    display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 0.6vw, 10px);
   }
   .welcome-footer-tagline { opacity: 0.8; }
-  .welcome-footer-links { display: flex; align-items: center; gap: 6px; }
+  .welcome-footer-links { display: flex; align-items: center; gap: clamp(4px, 0.6vw, 10px); }
   .welcome-footer a { color: inherit; text-decoration: none; }
   .welcome-footer a:hover { opacity: 0.8; }
   .welcome-dot { opacity: 0.4; }
   .welcome-build {
-    position: fixed; bottom: 12px; right: 16px;
-    font-family: monospace; font-size: 11px; opacity: 0.45;
+    position: fixed; bottom: clamp(8px, 1.2vw, 24px); right: clamp(12px, 1.5vw, 32px);
+    font-family: monospace;
+    font-size: clamp(11px, 0.9vw, 15px);
+    opacity: 0.45;
     color: var(--text);
   }
   .app-shell { display: flex; flex-direction: column; height: 100vh; background: var(--bg); color: var(--text); }
