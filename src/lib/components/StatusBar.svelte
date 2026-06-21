@@ -7,7 +7,9 @@
   }
 
   function formatCost(n: number): string {
-    if (n < 0.001) return '$0.00';
+    if (n === 0) return '$0.00';
+    if (n < 0.0001) return '$' + n.toFixed(7);
+    if (n < 0.01) return '$' + n.toFixed(6);
     return '$' + n.toFixed(4);
   }
 

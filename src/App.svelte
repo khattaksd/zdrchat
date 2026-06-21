@@ -98,6 +98,14 @@
     _conversations = convs;
     chatStore.setConversations(convs);
 
+    // Load messages for active conversation
+    if (_activeConvId) {
+      const msgs = await getConversationMessages(_activeConvId);
+      _messages = msgs;
+      chatStore.setMessages(msgs);
+      recalcSessionTotals(msgs);
+    }
+
     // If there's a key, initialize client
     if (savedKey) {
       await initClient(savedKey);
@@ -138,10 +146,13 @@
         if (found) statusStore.setCurrentModel(found);
       }
 
-      const credits = await client.fetchCredits();
-      _creditBalance = credits.total;
-      settingsStore.setCreditBalance(credits.total);
-      statusStore.setCreditBalance(credits.total);
+      const [keyInfo, credits] = await Promise.all([
+        client.fetchKeyInfo(),
+        client.fetchCredits(),
+      ]);
+      _creditBalance = keyInfo.limitRemaining;
+      settingsStore.setCreditBalance(keyInfo.limitRemaining);
+      statusStore.setCreditBalance(keyInfo.limitRemaining);
     } catch (e) {
       console.error('Failed to initialize API client:', e);
     }
@@ -228,6 +239,9 @@
       chatStore.setIsStreaming(true);
       chatStore.setStreamingContent('');
       let fullContent = '';
+      let lastTokensIn = 0;
+      let lastTokensOut = 0;
+      let lastCost = 0;
 
       let stream;
       try {
@@ -242,9 +256,13 @@
           chatStore.appendStreamingContent(chunk.content);
 
           if (chunk.done && chunk.usage) {
-            _tokensIn += chunk.usage.prompt_tokens;
-            _tokensOut += chunk.usage.completion_tokens;
-            statusStore.addTokens(chunk.usage.prompt_tokens, chunk.usage.completion_tokens, 0);
+            lastTokensIn = chunk.usage.prompt_tokens;
+            lastTokensOut = chunk.usage.completion_tokens;
+            lastCost = chunk.usage.cost ?? 0;
+            _tokensIn += lastTokensIn;
+            _tokensOut += lastTokensOut;
+            _sessionCost += lastCost;
+            statusStore.addTokens(lastTokensIn, lastTokensOut, lastCost);
           }
         }
       } catch (err: any) {
@@ -261,6 +279,9 @@
         role: 'assistant',
         content: fullContent || '(no response)',
         modelId: _defaultModel,
+        tokensIn: lastTokensIn || undefined,
+        tokensOut: lastTokensOut || undefined,
+        costUsd: lastCost || undefined,
       });
       _messages = [..._messages, assistantMsg];
       chatStore.addMessage(assistantMsg);
@@ -297,6 +318,7 @@
     const msgs = await getConversationMessages(id);
     _messages = msgs;
     chatStore.setMessages(msgs);
+    recalcSessionTotals(msgs);
     _error = null;
     chatStore.setError(null);
     setTimeout(() => messagesEnd?.scrollIntoView({ behavior: 'smooth' }), 100);
@@ -334,6 +356,20 @@
   function getModelDisplay(id: string): string {
     const model = _models.find(m => m.id === id);
     return model?.name || id.split('/').pop() || id;
+  }
+
+  function recalcSessionTotals(msgs: Message[]) {
+    let inTokens = 0, outTokens = 0, cost = 0;
+    for (const m of msgs) {
+      inTokens += m.tokensIn ?? 0;
+      outTokens += m.tokensOut ?? 0;
+      cost += m.costUsd ?? 0;
+    }
+    _tokensIn = inTokens;
+    _tokensOut = outTokens;
+    _sessionCost = cost;
+    statusStore.resetSession();
+    if (cost > 0) statusStore.addTokens(inTokens, outTokens, cost);
   }
 
   function handleApiKeySubmit(key: string) {

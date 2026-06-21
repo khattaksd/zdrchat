@@ -4,9 +4,11 @@ import type { Model } from './types';
 export class OpenRouterClient {
   private sdk: OpenRouterSDK;
   private _models: Model[] | null = null;
+  private _apiKey: string;
 
   constructor(apiKey: string) {
     this.sdk = new OpenRouterSDK({ apiKey });
+    this._apiKey = apiKey;
   }
 
   async fetchModels(force = false): Promise<Model[]> {
@@ -17,34 +19,36 @@ export class OpenRouterClient {
     return this._models;
   }
 
-  async fetchCredits(): Promise<{ total: number; used: number; free: number; payg: number }> {
+  async fetchCredits(): Promise<{ total: number; used: number }> {
     try {
       const res: any = await this.sdk.credits.getCredits();
-      const c = res?.data ?? res?.credits ?? res ?? {};
+      const c = res?.data ?? res ?? {};
       return {
-        total: c.total ?? 0,
-        used: c.used ?? 0,
-        free: c.free ?? 0,
-        payg: c.payg ?? 0,
+        total: c.totalCredits ?? 0,
+        used: c.totalUsage ?? 0,
       };
     } catch {
-      return { total: 0, used: 0, free: 0, payg: 0 };
+      return { total: 0, used: 0 };
     }
   }
 
-  async fetchKeyInfo(): Promise<{ isFreeTier: boolean; expiresAt: string | null }> {
+  async fetchKeyInfo(): Promise<{ isFreeTier: boolean; expiresAt: string | null; limit: number; limitRemaining: number; usage: number }> {
     try {
       const res = await fetch('https://openrouter.ai/api/v1/auth/key', {
-        headers: { Authorization: 'Bearer ' + (this.sdk as any).apiKey },
+        headers: { Authorization: 'Bearer ' + this._apiKey },
       });
-      if (!res.ok) return { isFreeTier: true, expiresAt: null };
+      if (!res.ok) return { isFreeTier: true, expiresAt: null, limit: 0, limitRemaining: 0, usage: 0 };
       const d = await res.json();
+      const data = d?.data ?? {};
       return {
-        isFreeTier: d?.data?.is_free_tier ?? true,
-        expiresAt: d?.data?.expires_at ?? null,
+        isFreeTier: data.is_free_tier ?? true,
+        expiresAt: data.expires_at ?? null,
+        limit: data.limit ?? 0,
+        limitRemaining: data.limit_remaining ?? 0,
+        usage: data.usage ?? 0,
       };
     } catch {
-      return { isFreeTier: true, expiresAt: null };
+      return { isFreeTier: true, expiresAt: null, limit: 0, limitRemaining: 0, usage: 0 };
     }
   }
 
@@ -67,7 +71,7 @@ export class OpenRouterClient {
   async *streamCompletion(params: {
     model: string;
     messages: { role: string; content: string | any[] }[];
-  }): AsyncGenerator<{ content: string; done: boolean; usage?: { prompt_tokens: number; completion_tokens: number } }> {
+  }): AsyncGenerator<{ content: string; done: boolean; usage?: { prompt_tokens: number; completion_tokens: number; cost: number } }> {
     const body = {
       chatRequest: {
         model: params.model,
@@ -84,15 +88,16 @@ export class OpenRouterClient {
         if (!choice) continue;
 
         const delta = choice.delta?.content ?? '';
-        const finishReason = choice.finish_reason;
+        const finishReason = choice.finishReason;
 
         if (delta || finishReason != null) {
           yield {
             content: delta,
             done: finishReason != null,
             usage: chunk.usage ? {
-              prompt_tokens: chunk.usage.prompt_tokens ?? 0,
-              completion_tokens: chunk.usage.completion_tokens ?? 0,
+              prompt_tokens: chunk.usage.promptTokens ?? 0,
+              completion_tokens: chunk.usage.completionTokens ?? 0,
+              cost: chunk.usage.cost ?? 0,
             } : undefined,
           };
         }
