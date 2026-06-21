@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { online = true, modelName = '', tokensIn = 0, tokensOut = 0, cost = 0, creditBalance = null as number | null } = $props();
+  let { online = true, modelName = '', tokensIn = 0, tokensOut = 0, cost = 0, creditBalance = null as number | null, onModelClick = () => {} } = $props();
 
   function formatTokens(n: number): string {
     if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
@@ -19,7 +19,9 @@
 
 <footer class="status-bar">
   <div class="status-left">
-    <span class="status-model" title="Current model">{modelName || 'No model selected'}</span>
+    <button class="status-model" onclick={onModelClick} title="Click to change model">
+      {modelName || 'No model selected'} <span class="model-chevron">▼</span>
+    </button>
   </div>
 
   <div class="status-center">
@@ -55,9 +57,14 @@
     background: var(--border); opacity: 0.5; margin-left: var(--pad-sm);
   }
   .status-model {
-    opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    max-width: 200px; font-weight: 500;
+    background: none; border: none; color: var(--text); font-family: inherit;
+    font-size: inherit; font-weight: 500; cursor: pointer;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 220px; opacity: 0.7; padding: 2px 6px; border-radius: 4px;
+    transition: all 0.15s ease;
   }
+  .status-model:hover { opacity: 1; background: var(--surface); transform: scale(1.1); }
+  .model-chevron { font-size: 9px; opacity: 0.5; margin-left: 2px; }
   .status-stat {
     opacity: 0.75; padding: 2px 6px; border-radius: 4px;
     transition: all 0.15s ease; cursor: default; position: relative;

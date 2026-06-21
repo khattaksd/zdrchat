@@ -409,13 +409,6 @@
       </button>
     </div>
 
-    <div class="header-center">
-      <button class="model-selector" on:click={() => showModelPicker = !showModelPicker}>
-        <span class="model-name">{getModelDisplay(_defaultModel)}</span>
-        <span class="chevron">▼</span>
-      </button>
-    </div>
-
     <div class="header-right">
       <button class="btn-icon" on:click={() => showSettings = !showSettings} title="Settings">⚙️</button>
       <button class="btn-icon" on:click={toggleTheme} title="Toggle theme">🎨</button>
@@ -562,6 +555,7 @@
     tokensOut={_tokensOut}
     cost={_sessionCost}
     creditBalance={_creditBalance}
+    onModelClick={() => showModelPicker = !showModelPicker}
   />
 
   <!-- Model Picker Overlay -->
@@ -616,25 +610,15 @@
     flex-shrink: 0; background: var(--header-bg); z-index: 10;
   }
   .header-left { display: flex; align-items: center; gap: 12px; }
-  .header-center { display: flex; align-items: center; }
   .header-right { display: flex; align-items: center; gap: 4px; }
 
   .sidebar-wrapper {
-    width: 260px; overflow: hidden; flex-shrink: 0;
+    width: 260px; overflow: hidden; flex-shrink: 0; height: 100%;
     transition: width 0.25s ease, opacity 0.25s ease;
   }
   .sidebar-wrapper.collapsed {
     width: 0; opacity: 0;
   }
-
-  .model-selector {
-    display: flex; align-items: center; gap: 8px;
-    padding: var(--pad-sm) var(--pad-md); border-radius: 8px; border: 1px solid var(--border);
-    background: var(--surface); cursor: pointer; font-size: var(--font-md); color: var(--text);
-  }
-  .model-selector:hover { border-color: var(--accent); }
-  .model-name { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .chevron { font-size: var(--font-xs); opacity: 0.6; }
 
   .btn-icon {
     background: none; border: none; cursor: pointer; padding: 6px; border-radius: 6px;

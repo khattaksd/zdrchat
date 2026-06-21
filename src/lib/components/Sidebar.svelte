@@ -51,7 +51,7 @@
 <style>
   .sidebar {
     width: 260px; display: flex; flex-direction: column; border-right: 1px solid var(--border);
-    background: var(--sidebar-bg); flex-shrink: 0; overflow: hidden;
+    background: var(--sidebar-bg); flex-shrink: 0; overflow: hidden; height: 100%;
   }
   .sidebar-header { padding: var(--pad-md); }
   .new-chat-btn {
