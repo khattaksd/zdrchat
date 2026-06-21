@@ -48,6 +48,16 @@ export class OpenRouterClient {
     }
   }
 
+  async fetchZdrEndpoints(): Promise<Set<string>> {
+    try {
+      const res: any = await this.sdk.endpoints.listZdrEndpoints();
+      const endpoints = Array.isArray(res) ? res : (res as any)?.data ?? [];
+      return new Set<string>(endpoints.map((e: any) => e.modelId).filter(Boolean));
+    } catch {
+      return new Set();
+    }
+  }
+
   /**
    * Streaming chat completion via the official OpenRouter SDK.
    * Note: We do NOT send provider.zdr or dataCollection per-request.

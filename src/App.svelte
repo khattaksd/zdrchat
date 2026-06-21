@@ -115,7 +115,16 @@
   async function initClient(key: string) {
     client = new OpenRouterClient(key);
     try {
-      const models = await client.fetchModels();
+      const [models, zdrSet] = await Promise.all([
+        client.fetchModels(),
+        client.fetchZdrEndpoints(),
+      ]);
+
+      // Tag each model with ZDR availability
+      for (const m of models) {
+        m.hasZdrEndpoint = zdrSet.has(m.id);
+      }
+
       _models = models;
       settingsStore.setModels(models);
       categorizeModels(models);
@@ -503,6 +512,7 @@
       models={_models}
       buckets={modelsByBucket}
       currentModel={_defaultModel}
+      zdrSet={new Set(_models.filter(m => m.hasZdrEndpoint).map(m => m.id))}
       onSelect={(modelId: string) => {
         _defaultModel = modelId;
         settingsStore.setDefaultModel(modelId);

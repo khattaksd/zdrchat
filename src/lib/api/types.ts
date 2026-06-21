@@ -19,16 +19,9 @@ export interface Model {
     context_length?: number;
     max_completion_tokens?: number;
   };
+  /** Set by our app after cross-referencing ZDR endpoint list */
+  hasZdrEndpoint?: boolean;
 }
-
-// Privacy policies for model providers
-export type PrivacyPolicy = {
-  zdr: boolean;
-  noTraining: boolean;
-  retentionDays?: number;
-  label: string;
-  warning?: string;
-};
 
 export const MODEL_BUCKETS = [
   { key: 'smartest', label: '🌟 Smartest', desc: 'Best for complex thinking' },
