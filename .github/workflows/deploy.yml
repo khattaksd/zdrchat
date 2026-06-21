@@ -1,9 +1,16 @@
 name: Deploy to Cloudflare Pages
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy target'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - preview
 
 jobs:
   deploy:
@@ -11,6 +18,7 @@ jobs:
     permissions:
       contents: read
       deployments: write
+    environment: ${{ inputs.environment == 'production' && 'Production' || 'Preview' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -28,4 +36,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist/ --project-name appzdrchat --branch main
+          command: pages deploy dist/ --project-name appzdrchat --branch ${{ inputs.environment == 'production' && 'main' || 'staging' }}
