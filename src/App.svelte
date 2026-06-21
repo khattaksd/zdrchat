@@ -39,6 +39,7 @@
   let _zdrOnly = $state(false);
   let _noTraining = $state(false);
   let _theme: string = $state('dark');
+  let _density: string = $state('cozy');
   let _creditBalance: number | null = $state(null);
   let _online = $state(true);
   let _tokensIn = $state(0);
@@ -84,6 +85,12 @@
     _theme = savedTheme;
     settingsStore.setTheme(savedTheme as any);
     applyTheme(savedTheme);
+
+    // Load persisted density
+    const savedDensity = await getSetting('density', 'cozy');
+    _density = savedDensity;
+    applyDensity(savedDensity);
+
     if (savedModel) {
       _defaultModel = savedModel;
       settingsStore.setDefaultModel(savedModel);
@@ -353,6 +360,19 @@
     setSetting('theme', next);
   }
 
+  function toggleDensity() {
+    const modes = ['tight', 'cozy', 'sparse'];
+    const idx = modes.indexOf(_density);
+    const next = modes[(idx + 1) % modes.length];
+    _density = next;
+    applyDensity(next);
+    setSetting('density', next);
+  }
+
+  function applyDensity(density: string) {
+    document.documentElement.setAttribute('data-density', density);
+  }
+
   function getModelDisplay(id: string): string {
     const model = _models.find(m => m.id === id);
     return model?.name || id.split('/').pop() || id;
@@ -400,6 +420,9 @@
     <div class="header-right">
       <button class="btn-icon" on:click={() => showSettings = !showSettings} title="Settings">⚙️</button>
       <button class="btn-icon" on:click={toggleTheme} title="Toggle theme">🎨</button>
+      <button class="btn-icon" on:click={toggleDensity} title="Density: {_density}">
+        {#if _density === 'tight'}📏{:else if _density === 'cozy'}📐{:else}📖{/if}
+      </button>
     </div>
   </header>
 
@@ -597,16 +620,16 @@
   .header-center { display: flex; align-items: center; }
   .header-right { display: flex; align-items: center; gap: 4px; }
 
-  .lock-badge { font-size: 13px; opacity: 0.8; }
+  .lock-badge { font-size: var(--font-sm); opacity: 0.8; }
 
   .model-selector {
     display: flex; align-items: center; gap: 8px;
-    padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--surface); cursor: pointer; font-size: 14px; color: var(--text);
+    padding: var(--pad-sm) var(--pad-md); border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); cursor: pointer; font-size: var(--font-md); color: var(--text);
   }
   .model-selector:hover { border-color: var(--accent); }
   .model-name { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .chevron { font-size: 10px; opacity: 0.6; }
+  .chevron { font-size: var(--font-xs); opacity: 0.6; }
 
   .btn-icon {
     background: none; border: none; cursor: pointer; padding: 6px; border-radius: 6px;
@@ -629,10 +652,10 @@
     max-width: 480px; width: 100%; padding: 32px; border-radius: 16px;
     background: var(--surface); border: 1px solid var(--border);
   }
-  .welcome-card h1 { margin: 0 0 8px; font-size: 28px; }
-  .welcome-sub { margin: 0 0 24px; font-size: 15px; opacity: 0.7; }
-  .welcome-steps { margin-bottom: 24px; }
-  .step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; font-size: 14px; }
+  .welcome-card h1 { margin: 0 0 var(--pad-sm); font-size: var(--font-xl); }
+  .welcome-sub { margin: 0 0 var(--pad-xl); font-size: var(--font-md); opacity: 0.7; }
+  .welcome-steps { margin-bottom: var(--pad-xl); }
+  .step { display: flex; align-items: flex-start; gap: var(--pad-md); margin-bottom: var(--pad-md); font-size: var(--font-md); }
   .step-num {
     width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: white;
     display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;
@@ -640,8 +663,8 @@
   }
   .key-input-row { display: flex; gap: 8px; }
   .key-input {
-    flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--input-bg); color: var(--text); font-size: 14px; font-family: monospace;
+    flex: 1; padding: var(--pad-md); border-radius: 8px; border: 1px solid var(--border);
+    background: var(--input-bg); color: var(--text); font-size: var(--font-md); font-family: monospace;
   }
   .key-input:focus { outline: none; border-color: var(--accent); }
   .key-note { margin: 12px 0 0; font-size: 12px; opacity: 0.6; }
@@ -658,9 +681,9 @@
     padding: 24px; gap: 24px;
   }
   .empty-content { text-align: center; }
-  .empty-content h2 { margin: 0 0 8px; font-size: 22px; }
-  .empty-content p { margin: 0; font-size: 15px; opacity: 0.7; }
-  .empty-privacy { margin-top: 8px !important; font-size: 13px !important; }
+  .empty-content h2 { margin: 0 0 var(--pad-sm); font-size: var(--font-xl); }
+  .empty-content p { margin: 0; font-size: var(--font-md); opacity: 0.7; }
+  .empty-privacy { margin-top: var(--pad-sm) !important; font-size: var(--font-sm) !important; }
 
   /* Messages */
   .messages-area {
@@ -674,8 +697,8 @@
   .message.assistant { background: var(--assistant-msg); align-self: flex-start; }
   .message.error { background: var(--error-bg); align-self: center; border: 1px solid var(--error-border); }
   .message-avatar { font-size: 22px; flex-shrink: 0; }
-  .message-text { font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
-  .message-meta { font-size: 11px; opacity: 0.5; margin-top: 4px; }
+  .message-text { font-size: var(--font-md); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .message-meta { font-size: var(--font-xs); opacity: 0.5; margin-top: var(--pad-xs); }
   .streaming .cursor { animation: blink 0.8s infinite; }
   .error-text { color: var(--error); }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -687,8 +710,8 @@
     background: var(--header-bg);
   }
   .chat-input {
-    flex: 1; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--input-bg); color: var(--text); font-size: 14px; resize: none;
+    flex: 1; padding: var(--pad-md); border-radius: 10px; border: 1px solid var(--border);
+    background: var(--input-bg); color: var(--text); font-size: var(--font-md); resize: none;
     font-family: inherit; line-height: 1.4; max-height: 120px;
   }
   .chat-input:focus { outline: none; border-color: var(--accent); }

@@ -107,6 +107,50 @@
   --error: #f7768e;
 }
 
+/* ── Density Variants (font size & spacing) ──────────── */
+
+:root, [data-density="tight"] {
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-base: 13px;
+  --font-md: 14px;
+  --font-lg: 16px;
+  --font-xl: 22px;
+  --pad-xs: 4px;
+  --pad-sm: 8px;
+  --pad-md: 12px;
+  --pad-lg: 16px;
+  --pad-xl: 24px;
+}
+
+[data-density="cozy"] {
+  --font-xs: 12px;
+  --font-sm: 13px;
+  --font-base: 14px;
+  --font-md: 16px;
+  --font-lg: 18px;
+  --font-xl: 24px;
+  --pad-xs: 6px;
+  --pad-sm: 10px;
+  --pad-md: 14px;
+  --pad-lg: 20px;
+  --pad-xl: 28px;
+}
+
+[data-density="sparse"] {
+  --font-xs: 13px;
+  --font-sm: 14px;
+  --font-base: 16px;
+  --font-md: 18px;
+  --font-lg: 22px;
+  --font-xl: 28px;
+  --pad-xs: 8px;
+  --pad-sm: 12px;
+  --pad-md: 18px;
+  --pad-lg: 26px;
+  --pad-xl: 36px;
+}
+
 /* ── Global Resets ───────────────────────────────────── */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
