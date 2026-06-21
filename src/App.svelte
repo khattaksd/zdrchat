@@ -441,7 +441,7 @@
         <!-- Welcome / Key Entry -->
         <div class="welcome">
           <div class="welcome-card">
-            <h1>🔒 OpenChat</h1>
+            <h1>🔒 ZDR Chat</h1>
             <p class="welcome-sub">Private AI chat. No account. No tracking.</p>
             <div class="welcome-steps">
               <div class="step">

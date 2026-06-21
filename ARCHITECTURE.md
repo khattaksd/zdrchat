@@ -1,4 +1,4 @@
-# OpenChat PWA — Architecture & Product Vision
+# ZDR Chat — Architecture & Product Vision
 
 > **Tagline:** *Private AI chat. No account. No tracking. Just paste your key and go.*
 >
@@ -52,7 +52,7 @@ This is a **symbiotic relationship**, not just an API wrapper.
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
-│                     OpenChat PWA (in your browser)                  │
+│                     ZDR Chat (in your browser)                  │
 │                                                                   │
 │  ┌─────────────┐     ┌─────────────────┐     ┌─────────────────┐ │
 │  │ Onboarding   │ ──► │ Chat Interface  │ ──► │ Settings &      │ │
@@ -209,7 +209,7 @@ interface Setting {
 ┌─────────────────────────────────┐
 │         Your Browser            │
 │                                 │
-│  OpenChat PWA                   │
+│  ZDR Chat                   │
 │    │                            │
 │    ├── GET /api/v1/models ──► OpenRouter ◄──► Providers (Anthropic, etc.)
 │    │   (340+ models w/ pricing) │
@@ -878,7 +878,7 @@ Users see friendly names by default. Power users can toggle to "Show all 340+ mo
 ## 📁 Project Structure
 
 ```
-openchat-pwa/
+zdrchat/
 ├── public/
 │   ├── icons/                  # PWA icons (512, 192, 72, maskable)
 │   ├── screenshots/            # Onboarding screenshots (openrouter.ai/key steps)

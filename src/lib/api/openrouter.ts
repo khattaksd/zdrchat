@@ -7,7 +7,12 @@ export class OpenRouterClient {
   private _apiKey: string;
 
   constructor(apiKey: string) {
-    this.sdk = new OpenRouterSDK({ apiKey });
+    this.sdk = new OpenRouterSDK({
+      apiKey,
+      httpReferer: 'https://zdr.chat',
+      appTitle: 'ZDR Chat',
+      appCategories: 'general-chat',
+    });
     this._apiKey = apiKey;
   }
 

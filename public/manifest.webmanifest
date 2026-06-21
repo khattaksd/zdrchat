@@ -1,7 +1,7 @@
 {
-  "name": "OpenChat PWA",
-  "short_name": "OpenChat",
-  "description": "Private AI chat. No account. No tracking. Just paste your key and go.",
+  "name": "ZDR Chat",
+  "short_name": "ZDR Chat",
+  "description": "Private AI chat. Zero servers.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

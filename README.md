@@ -1,156 +1,92 @@
-# OpenChat PWA 🔒
+# ZDR Chat 🔒
 
-> **Private AI chat. No account. No tracking. Just paste your key and go.**
+**Private AI chat. Zero Data Retention. Zero servers.**
 
-A beautifully crafted, serverless chat PWA that puts **everyday users** in control of their own AI.
-Bring your own OpenRouter key. Everything stays in your browser. Zero servers, zero accounts, zero tracking.
+ZDR Chat is a fully private, serverless, BYOK chat PWA that talks to [OpenRouter.ai](https://openrouter.ai) directly from your browser. No accounts, no backend, no tracking — just paste your API key and go.
 
----
+👉 **Live at [app.zdr.chat](https://app.zdr.chat)**
 
-## 🌟 Why this exists
+## Why ZDR Chat?
 
-Most AI chat apps either:
-- **Collect your data** (ChatGPT, Claude, Gemini — they train on your conversations)
-- **Require a subscription** ($20/month whether you use it or not)
-- **Assume you're a developer** ("BYOK", "API key", "provider routing" — jargon everywhere)
+| Problem | Solution |
+|---------|----------|
+| Your data gets saved on someone else's server | **Zero servers** — everything stays in your browser |
+| Every chat app wants your email, phone, or Google account | **No accounts** — just an API key |
+| AI providers train on your conversations | **Zero Data Retention** — enforce ZDR at the OpenRouter account level |
+| You need to trust someone else's infrastructure | **No backend** — the app is a static HTML file |
+| Subscription fees for one AI model | **BYOK** — bring your own key, pay OpenRouter directly |
 
-We built something different.
+ZDR Chat is designed for privacy-conscious users who want the power of frontier AI models without surrendering their data or signing up for yet another service.
 
-**OpenChat is for people who value their privacy but aren't techies.**
-Journalists. Therapists. Lawyers. Students. Writers. Anyone who wants a private AI assistant
-without signing up for another service, without their data being mined, without paying for features they don't use.
+## Tech Stack
 
----
+| Layer | Choice | Why |
+|-------|--------|-----|
+| Framework | **Svelte 5** | ~18KB gzipped total — smallest modern framework |
+| Build | **Vite 6** + **TypeScript** | Fast dev, type-safe |
+| Styling | **Tailwind CSS v4** + **CSS custom properties** | 6 themes, 3 density modes |
+| State | **Svelte writable stores** | Simple, no deps |
+| Storage | **Dexie.js (IndexedDB)** | Persistent conversations, settings, messages |
+| API | **@openrouter/sdk** | Official SDK, auto-generated from OpenAPI spec |
+| PWA | **vite-plugin-pwa (Workbox)** | Offline support, installable |
+| Hosting | **Cloudflare Pages** | Global CDN, free tier |
 
-## ✨ Features
+## Features
 
-| Feature | What it does |
-|---------|--------------|
-| 🔒 **100% private** | No accounts, no servers, no tracking. Your data stays in your browser. |
-| 🗝️ **Bring your own key** | Create a free OpenRouter account, get an API key, paste it in. Use 23 free models at $0 cost, or add credits for premium models (Claude Opus, GPT-5, etc.). You pay only for what you use — no subscription. |
-| 📱 **PWA — installs like an app** | Add to your home screen. Works offline (browsing history). No app store needed. |
-| 🌈 **Beautiful, themeable UI** | 6 built-in themes (Light, Dark, Sepia, Nord, Catppuccin, Tokyo Night) + custom accent colors. |
-| 💬 **340+ AI models** | From Claude Opus to GPT-5 to Gemini. Pick your AI, switch anytime. |
-| 💰 **Cost tracking** | Status bar shows tokens used, session cost, credit balance. No surprises. |
-| 📎 **File uploads** | Upload images, PDFs, Word docs, Excel files — we extract the text and send it with your message. |
-| 🎯 **Friendly model picker** | "Smartest" / "Fastest" / "Free" / "Creative" — no model IDs to memorize. |
-| ⚡ **Real-time streaming** | Responses appear as they're generated. Smooth typewriter animation. |
-| 📤 **Export anytime** | Download your conversations as Markdown, JSON, or HTML. You own your data. |
-| 🔄 **Always up to date** | PWA updates gracefully — saves your chat before restarting. |
+- **No backend, no servers, no accounts** — purely client-side
+- **BYOK** — bring your own OpenRouter API key
+- **6 themes** — Dark, Light, Sepia, Nord, Catppuccin, Tokyo Night
+- **3 density modes** — Tight, Cozy, Sparse (for readability)
+- **Streaming chat** — real-time responses
+- **Model picker** — tabbed browsing by category, ZDR filter, sort by size/price/name
+- **Session tracking** — token counters, cost, credit balance
+- **Conversation history** — searchable sidebar with smooth slide animation
+- **Privacy first** — no analytics, no telemetry, no tracking
+- **ZDR enforcement detection** — catches policy errors and guides users
+- **PWA** — installable on desktop and mobile, works offline
 
----
+## Quick Start
 
-## 🙋 Frequently Asked Questions
+1. Go to [openrouter.ai/keys](https://openrouter.ai/keys) — create a free account and copy your API key
+2. Open [app.zdr.chat](https://app.zdr.chat)
+3. Paste your key and start chatting
+4. That's it. Your key stays in your browser. Nothing is sent anywhere except to OpenRouter.
 
-### Is it really free?
+## Data Sovereignty
 
-The app is free. Creating an OpenRouter account and API key is free.
-There are **23 free models** (like Llama 3, Nemotron, Qwen) you can use at **$0 cost**.
-For premium models like Claude Opus or GPT-5, you add credits to your OpenRouter
-account and pay per-use — typically **pennies per conversation**.
+ZDR Chat does not store, log, or transmit any user data outside your browser. All data is stored locally in IndexedDB — conversations, messages, settings, and your API key. The only network requests are directly to OpenRouter's API.
 
-No subscription. No monthly fee. You only pay for what you actually use.
+**Zero Data Retention (ZDR)** can be enforced at your OpenRouter account level:
+1. Go to [openrouter.ai/settings/privacy](https://openrouter.ai/settings/privacy)
+2. Enable "Zero Data Retention"
+3. The app will automatically filter to only show ZDR-compliant models
 
-### Do I need a credit card?
+## Development
 
-For free models: **No.** You can start chatting without adding any payment method.
-For premium models: **Yes.** You'll add credits to your OpenRouter account first.
-The app shows you the cost before you send, so there are no surprises.
-
-### Do models store or train on my data?
-
-It depends on the model and provider. Some do, some don't.
-
-Our app helps you choose wisely:
-
-- **🔒 Privacy badge** — every model shows whether it has Zero Data Retention (ZDR)
-  and whether the provider trains on your data
-- **⚙️ Privacy toggles** — turn on "Only use models that don't store my data"
-  and we enforce it for every request
-- **⚠️ Warnings** — if you pick a model that may retain or train on your data,
-  we show a clear warning before you chat
-
-**Privacy-first by default:** The recommended model buckets only show you
-trusted providers. You have to explicitly opt into models with weaker policies.
-
-See [openrouter.ai/docs/guides/features/zdr](https://openrouter.ai/docs/guides/features/zdr)
-for OpenRouter's official ZDR documentation.
-
-### What happens to my data?
-
-Everything stays in your browser. Conversations are stored in your device's
-IndexedDB — the same storage your browser uses for offline data. The only data
-that leaves your device is the message you send to OpenRouter, and their
-Zero Data Retention policy means they don't store it either.
-
-No servers. No accounts. No training on your data.
-
----
-
-## 🧠 How it works
-
-```
-You type a message
-       │
-       ▼
-OpenChat encrypts nothing (it's already local)
-       │
-       ▼
-Message sent directly to OpenRouter API
-       │
-       ▼
-OpenRouter routes to your chosen model (Claude, GPT, Gemini...)
-       │
-       ▼
-Response streams back to your browser
-       │
-       ▼
-Stored in IndexedDB on YOUR device — no one else's server
+```bash
+git clone https://github.com/yourusername/zdrchat.git
+cd zdrchat
+npm install
+npx vite --host
 ```
 
-**That's it. Browser → OpenRouter → Model → Browser. Zero detours.**
+Build for production:
+```bash
+npx vite build
+# Output in dist/
+```
 
-OpenRouter's **Zero Data Retention (ZDR)** policy means they don't store your conversations either.
-Your data is yours, always.
+## Deployment
 
----
+ZDR Chat is designed to be deployed as a static site on Cloudflare Pages:
 
-## 🏗️ Tech Stack
+- **Root domain**: `zdr.chat` — landing page
+- **App**: `app.zdr.chat` — the PWA
 
-| Layer | Choice |
-|-------|--------|
-| Framework | **Svelte 5** (~1.5KB gzip — the smallest major framework) |
-| Build | **Vite 6** |
-| PWA | **vite-plugin-pwa** (service worker + manifest) |
-| Styling | **Tailwind CSS v4** + CSS custom properties |
-| State | **Zustand** (~1KB) |
-| Storage | **Dexie.js** (IndexedDB wrapper with migrations) |
-| API | **OpenRouter** — 340+ models, streaming, multimodal |
-| Icons | **Lucide** |
+```bash
+npx wrangler pages deploy dist/ --project-name zdrchat
+```
 
----
-
-## 🎯 Target Audience
-
-**Non-technical people who love their privacy.**
-
-You don't need to know what an "API key" is. You don't need to know what "BYOK" means.
-The onboarding walks you through every step with plain English and screenshots.
-
-If you can install an app on your phone and paste a code, you can use OpenChat.
-
----
-
-## 📖 Documentation
-
-Full architecture and design decisions: [ARCHITECTURE.md](./ARCHITECTURE.md)
-
----
-
-## 📄 License
+## License
 
 MIT
-
----
-
-*Built for privacy. Powered by OpenRouter. Yours always.*

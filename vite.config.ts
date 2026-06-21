@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {
-        name: 'OpenChat PWA',
-        short_name: 'OpenChat',
-        description: 'Private AI chat. No account. No tracking. Just paste your key and go.',
+        name: 'ZDR Chat',
+        short_name: 'ZDR Chat',
+        description: 'Private AI chat 2014 Zero Data Retention, zero servers',
         theme_color: '#0a0a0b',
         background_color: '#0a0a0b',
         display: 'standalone',

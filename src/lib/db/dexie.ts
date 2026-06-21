@@ -50,7 +50,7 @@ class ChatDatabase extends Dexie {
   settings!: Table<Setting, string>;
 
   constructor() {
-    super('OpenChatDB');
+    super('ZDRChatDB');
 
     // v1
     this.version(1).stores({
