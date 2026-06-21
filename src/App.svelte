@@ -415,6 +415,7 @@
       <form class="welcome-input-row" onsubmit={(e) => { e.preventDefault(); if (keyInputText.trim()) { handleApiKeySubmit(keyInputText); keyInputText = ''; } }}>
         <input
           type="password"
+          autocomplete="new-password"
           class="welcome-key-input"
           placeholder="Paste your OpenRouter key"
           bind:value={keyInputText}

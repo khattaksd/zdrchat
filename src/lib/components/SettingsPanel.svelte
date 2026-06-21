@@ -41,6 +41,7 @@
         <div class="key-input-wrapper">
           <input
             type={showKey ? 'text' : 'password'}
+            autocomplete={showKey ? 'off' : 'new-password'}
             bind:value={localKey}
             placeholder="sk-or-v1-..."
             class="input"
