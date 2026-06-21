@@ -13,6 +13,11 @@
   let localKey = $state(apiKey);
   let showKey = $state(false);
 
+  function handleKeySubmit(e: SubmitEvent) {
+    e.preventDefault();
+    if (localKey.trim()) onUpdateKey(localKey);
+  }
+
   const themes = [
     { value: 'dark', label: '🌙 Dark' },
     { value: 'light', label: '☀️ Light' },
@@ -37,7 +42,7 @@
     <!-- API Key -->
     <section class="section">
       <h4>API Key</h4>
-      <form class="key-row" onsubmit={(e) => { e.preventDefault(); if (localKey.trim()) onUpdateKey(localKey); }}>
+      <form class="key-row" onsubmit={handleKeySubmit}>
         <div class="key-input-wrapper">
           <input
             type={showKey ? 'text' : 'password'}

@@ -399,6 +399,14 @@
     setSetting('apiKey', key);
     initClient(key);
   }
+
+  function handleWelcomeSubmit(e: SubmitEvent) {
+    e.preventDefault();
+    if (keyInputText.trim()) {
+      handleApiKeySubmit(keyInputText);
+      keyInputText = '';
+    }
+  }
 </script>
 
 {#if !_apiKey}
@@ -412,7 +420,7 @@
       <h1 class="welcome-title">Your Private AI</h1>
       <p class="welcome-tagline">No account · No servers · No tracking</p>
 
-      <form class="welcome-input-row" onsubmit={(e) => { e.preventDefault(); if (keyInputText.trim()) { handleApiKeySubmit(keyInputText); keyInputText = ''; } }}>
+      <form class="welcome-input-row" onsubmit={handleWelcomeSubmit}>
         <input
           type="password"
           autocomplete="new-password"
