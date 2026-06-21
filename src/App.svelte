@@ -445,11 +445,11 @@
       <div class="welcome-footer">
         <div class="welcome-footer-tagline">Made for the privacy-conscious</div>
         <div class="welcome-footer-links">
-          <a href="https://zdr.chat" target="_blank" rel="noopener">zdr.chat</a>
+          <a href="https://zdr.chat" target="_blank" rel="noopener">ZDR.chat</a>
           <span class="welcome-dot">·</span>
           <a href="https://github.com/khattaksd/zdrchat" target="_blank" rel="noopener">GitHub</a>
           <span class="welcome-dot">·</span>
-          <a href="https://openrouter.ai/settings/privacy" target="_blank" rel="noopener">Privacy</a>
+          <a href="https://zdr.chat/privacy" target="_blank" rel="noopener">Privacy</a>
         </div>
       </div>
     </div>
@@ -466,7 +466,7 @@
     </div>
 
     <div class="header-center">
-      <a href="https://zdr.chat" target="_blank" rel="noopener" class="logo" title="ZDR Chat — visit zdr.chat">
+      <a href="https://zdr.chat" target="_blank" rel="noopener" class="logo" title="ZDR Chat — visit ZDR.chat">
         <span class="logo-zdr">ZDR</span><span class="logo-dot">.</span><span class="logo-chat">chat</span>
       </a>
     </div>
