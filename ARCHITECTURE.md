@@ -984,3 +984,27 @@ This pattern works for **any page** on OpenRouter's documentation site — usefu
 ---
 
 > *"A private AI chat app where the only data leaving your browser is the prompt to OpenRouter — and even they don't keep it. Beautiful, simple, and yours."*
+
+---
+
+## Ethics & Economics
+
+### Not Affiliated
+
+ZDR Chat is **not affiliated with OpenRouter.ai**. We have no commercial relationship — no referral fees, no commissions, no revenue sharing. The app is an independent, open-source frontend.
+
+### No Monetization
+
+The app is a static PWA on Cloudflare's free tier. Hosting costs ~$0/month. We have no servers, no database, no analytics. There are no plans to introduce ads, subscriptions, or paid tiers.
+
+### Why We Built This
+
+Privacy-first AI should be the default, not a premium feature. We wanted a tool we could trust, and we believe everyone deserves the same.
+
+### Cost Philosophy
+
+- **No subscription** — add $1–$10 to your OpenRouter account and it lasts as long as you use it
+- **Pay OpenRouter directly** — we never touch your money
+- **Cost tracking built in** — the status bar shows session cost and remaining credit
+- **Free models available** — try the app without spending a cent
+- **Agentic coding note** — large context windows burn tokens faster; the status bar helps you stay aware

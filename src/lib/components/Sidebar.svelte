@@ -18,7 +18,7 @@
 
 <aside class="sidebar">
   <div class="sidebar-header">
-    <button class="new-chat-btn" on:click={onNew}>
+    <button class="new-chat-btn" onclick={onNew}>
       <span class="icon">✏️</span> New chat
     </button>
   </div>
@@ -37,7 +37,7 @@
       <button
         class="conv-item"
         class:active={conv.id === activeId}
-        on:click={() => onSelect(conv.id)}
+        onclick={() => onSelect(conv.id)}
       >
         <span class="conv-title">{conv.title}</span>
         <span class="conv-date">{new Date(conv.updatedAt).toLocaleDateString()}</span>

@@ -275,3 +275,55 @@ git init zdrchat-landing && cd zdrchat-landing
 # Connect to Cloudflare Pages project `zdrchat`
 # Add custom domain `zdr.chat`
 ```
+
+---
+
+## Pricing & Ethics Positioning
+
+### Core Message
+
+Private AI shouldn't require a trust fund or a data sacrifice.
+
+| Others | ZDR Chat |
+|--------|----------|
+| "Free" apps monetize your data | We don't — the app costs ~$0/month to host |
+| Subscriptions lock you in | Pay OpenRouter directly, no markup |
+| Opaque pricing | Per-token cost in the status bar, real-time |
+| Affiliated with specific providers | Independent, not affiliated with OpenRouter |
+
+### Not Affiliated (must be visible)
+
+Every blog post and the landing page footer should state: *ZDR Chat is an independent, open-source project. We're not affiliated with OpenRouter.ai — we don't resell their services, earn commissions, or track your usage.*
+
+### Hero Tagline
+
+> Your data stays yours. Your wallet stays happy.
+> No subscription. No data mining. Just pay-as-you-go AI starting at $1.
+
+### Feature Section
+
+Replace the "300+ Models" card with a pricing/philosophy card:
+
+> **💵 Pay-as-You-Go, No Subscription**
+> No monthly bills. Add as little as $1 to OpenRouter and it lasts until you spend it. The status bar tracks every cent.
+
+### Pricing Section (new component)
+
+Add a dedicated `PricingSection.astro` component with three cards:
+
+1. **Pay OpenRouter Directly** — No markup, no platform fee, no hidden charges
+2. **Track Every Cent** — Status bar shows session cost in real time
+3. **Free Models Included** — Try without spending with OpenRouter's :free models
+
+Plus a banner: *We're not affiliated with OpenRouter. We don't earn commissions, resell tokens, or track usage.*
+
+---
+
+## Blog Posts
+
+| Slug | Topic |
+|------|-------|
+| `privacy-isnt-free` | "Free" apps monetize data. ZDR Chat is transparent about costs. |
+| `what-a-dollar-gets-you` | Concrete examples of $1 buying power across model tiers |
+| `costs-us-next-to-nothing` | Static PWA economics — zero server costs, zero incentive to monetize |
+| `agentic-coding-burns-tokens` | Why coding tools cost more, and how to keep conversational chat cheap |

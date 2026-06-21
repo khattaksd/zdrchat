@@ -58,7 +58,8 @@
 </script>
 
 <!-- Overlay backdrop -->
-<div class="overlay" onclick={onClose}></div>
+<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+<div class="overlay" role="presentation" onclick={onClose} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}></div>
 
 <div class="modal">
   <div class="modal-header">

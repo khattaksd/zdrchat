@@ -9,6 +9,7 @@
     onClose = () => {},
   } = $props();
 
+  // svelte-ignore state_referenced_locally
   let localKey = $state(apiKey);
   let showKey = $state(false);
 
@@ -23,12 +24,13 @@
 </script>
 
 <!-- Overlay -->
-<div class="overlay" on:click={onClose}></div>
+<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+<div class="overlay" role="presentation" onclick={onClose} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}></div>
 
 <div class="panel">
   <div class="panel-header">
     <h3>⚙️ Settings</h3>
-    <button class="close-btn" on:click={onClose}>✕</button>
+    <button class="close-btn" onclick={onClose}>✕</button>
   </div>
 
   <div class="panel-body">
@@ -43,11 +45,11 @@
             placeholder="sk-or-v1-..."
             class="input"
           />
-          <button class="toggle-vis" on:click={() => showKey = !showKey}>
+          <button class="toggle-vis" onclick={() => showKey = !showKey}>
             {showKey ? '🙈' : '👁️'}
           </button>
         </div>
-        <button class="btn-sm" on:click={() => onUpdateKey(localKey)} disabled={!localKey.trim()}>Update</button>
+        <button class="btn-sm" onclick={() => onUpdateKey(localKey)} disabled={!localKey.trim()}>Update</button>
       </div>
       <p class="note">🔑 Stored in your browser only. Never sent anywhere except to OpenRouter.</p>
     </section>
@@ -60,7 +62,7 @@
           <button
             class="theme-btn"
             class:active={theme === t.value}
-            on:click={() => onUpdateTheme(t.value)}
+            onclick={() => onUpdateTheme(t.value)}
           >{t.label}</button>
         {/each}
       </div>
@@ -81,6 +83,16 @@
       >
         ⚙️ OpenRouter Privacy Settings →
       </a>
+    </section>
+
+    <!-- Ethics -->
+    <section class="section">
+      <h4>ℹ️ About</h4>
+      <p class="note">
+        ZDR Chat is an <strong>independent, open-source project</strong>. Not affiliated with OpenRouter.ai.
+        We don't earn commissions, resell tokens, or track usage.
+        Built for privacy, not profit.
+      </p>
     </section>
 
     <!-- Account -->
@@ -126,11 +138,6 @@
   .theme-btn:hover { border-color: var(--accent); }
   .theme-btn.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
 
-  .toggle-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 0; font-size: 13px; cursor: pointer;
-  }
-  .toggle-row input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
   .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; opacity: 0.7; }
   .privacy-link {
     display: inline-flex; align-items: center; gap: 6px;

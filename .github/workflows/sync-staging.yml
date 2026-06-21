@@ -1,0 +1,23 @@
+name: Sync staging after main merge
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge main back into staging
+        run: |
+          git checkout staging
+          git merge origin/main --no-edit
+          git push origin staging

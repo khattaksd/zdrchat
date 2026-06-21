@@ -412,22 +412,21 @@
       <h1 class="welcome-title">Your Private AI</h1>
       <p class="welcome-tagline">No account · No servers · No tracking</p>
 
-      <div class="welcome-input-row">
+      <form class="welcome-input-row" onsubmit={(e) => { e.preventDefault(); if (keyInputText.trim()) { handleApiKeySubmit(keyInputText); keyInputText = ''; } }}>
         <input
           type="password"
           class="welcome-key-input"
           placeholder="Paste your OpenRouter key"
           bind:value={keyInputText}
-          onkeydown={(e) => { if (e.key === 'Enter') { handleApiKeySubmit(keyInputText); keyInputText = ''; } }}
         />
         <button
+          type="submit"
           class="welcome-connect-btn"
           disabled={!keyInputText.trim()}
-          onclick={() => { handleApiKeySubmit(keyInputText); keyInputText = ''; }}
         >
           Connect
         </button>
-      </div>
+      </form>
 
       <p class="welcome-key-note">
         🔑 Your key stays in this browser. Never sent anywhere except to OpenRouter.
@@ -436,14 +435,21 @@
         Need a key? <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">Get one at openrouter.ai</a>
       </p>
 
+      <p class="welcome-pricing">
+        No subscription. Add $1 to OpenRouter and start chatting — free models also available.
+      </p>
+      <p class="welcome-ethics">
+        Independent project. Not affiliated with OpenRouter. Built for privacy, not profit.
+      </p>
+
       <div class="welcome-footer">
         <div class="welcome-footer-tagline">Made for the privacy-conscious</div>
         <div class="welcome-footer-links">
-          <a href="https://zdr.chat" target="_blank" rel="noopener">zdr.chat</a>
+          <a href="https://zdr.chat" target="_blank" rel="noopener">ZDR.chat</a>
           <span class="welcome-dot">·</span>
           <a href="https://github.com/khattaksd/zdrchat" target="_blank" rel="noopener">GitHub</a>
           <span class="welcome-dot">·</span>
-          <a href="https://openrouter.ai/settings/privacy" target="_blank" rel="noopener">Privacy</a>
+          <a href="https://zdr.chat/privacy" target="_blank" rel="noopener">Privacy</a>
         </div>
       </div>
     </div>
@@ -460,7 +466,7 @@
     </div>
 
     <div class="header-center">
-      <a href="https://zdr.chat" target="_blank" rel="noopener" class="logo" title="ZDR Chat — visit zdr.chat">
+      <a href="https://zdr.chat" target="_blank" rel="noopener" class="logo" title="ZDR Chat — visit ZDR.chat">
         <span class="logo-zdr">ZDR</span><span class="logo-dot">.</span><span class="logo-chat">chat</span>
       </a>
     </div>
@@ -717,10 +723,20 @@
   }
   .welcome-cta {
     font-size: clamp(14px, 1.3vw, 22px);
-    margin: 0 0 clamp(32px, 5vw, 72px);
+    margin: 0 0 0;
   }
   .welcome-cta a { color: var(--accent); text-decoration: none; }
   .welcome-cta a:hover { text-decoration: underline; }
+  .welcome-pricing {
+    font-size: clamp(13px, 1.1vw, 18px);
+    opacity: 0.65;
+    margin: clamp(12px, 2vw, 28px) 0 0;
+  }
+  .welcome-ethics {
+    font-size: clamp(12px, 1vw, 16px);
+    opacity: 0.45;
+    margin: clamp(4px, 0.5vw, 8px) 0 clamp(32px, 5vw, 72px);
+  }
   .welcome-footer {
     font-size: clamp(13px, 1.1vw, 18px);
     color: var(--text-secondary); opacity: 0.5;

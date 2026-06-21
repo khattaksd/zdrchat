@@ -90,3 +90,25 @@ npx wrangler pages deploy dist/ --project-name zdrchat
 ## License
 
 MIT
+
+## Pricing & Ethics
+
+### Not Affiliated
+
+ZDR Chat is an **independent, open-source project** with no affiliation to OpenRouter.ai. We don't earn commissions, resell tokens, or receive referral fees. Every cent you add to OpenRouter stays with OpenRouter.
+
+### No Monetization
+
+The app is a static PWA hosted on Cloudflare's free tier — it costs us ~$0/month to operate. We have no servers, no database, no analytics, and no incentive to track or monetize user data. There are no plans to introduce ads, subscriptions, or paid tiers.
+
+### Why We Built This
+
+Privacy-first AI should be the default, not a premium feature. We wanted a tool we could trust, and we believe everyone deserves the same. If you find it useful, share it, contribute on GitHub, or just enjoy the peace of mind.
+
+### Cost Transparency
+
+- **No subscription** — add $1–$10 to your OpenRouter account and it lasts as long as you use it
+- **Pay OpenRouter directly** — the app never touches your money
+- **Per-message cost tracking** — the status bar shows tokens in/out, session cost, and remaining credit
+- **Free models available** — try the app without spending anything using OpenRouter's `:free` models
+- **Agentic coding note** — large context windows burn tokens faster; the status bar helps you stay aware
