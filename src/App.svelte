@@ -436,6 +436,13 @@
         Need a key? <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">Get one at openrouter.ai</a>
       </p>
 
+      <p class="welcome-pricing">
+        No subscription. Add $1 to OpenRouter and start chatting — free models also available.
+      </p>
+      <p class="welcome-ethics">
+        Independent project. Not affiliated with OpenRouter. Built for privacy, not profit.
+      </p>
+
       <div class="welcome-footer">
         <div class="welcome-footer-tagline">Made for the privacy-conscious</div>
         <div class="welcome-footer-links">
@@ -717,10 +724,22 @@
   }
   .welcome-cta {
     font-size: clamp(14px, 1.3vw, 22px);
-    margin: 0 0 clamp(32px, 5vw, 72px);
+    margin: 0 0 0;
   }
   .welcome-cta a { color: var(--accent); text-decoration: none; }
   .welcome-cta a:hover { text-decoration: underline; }
+  .welcome-pricing {
+    font-size: clamp(13px, 1.1vw, 18px);
+    opacity: 0.65;
+    margin: clamp(12px, 2vw, 28px) 0 0;
+  }
+  .welcome-ethics {
+    font-size: clamp(12px, 1vw, 16px);
+    opacity: 0.45;
+    margin: clamp(4px, 0.5vw, 8px) 0 clamp(32px, 5vw, 72px);
+  }
+  .welcome-ethics a { color: inherit; text-decoration: none; }
+  .welcome-ethics a:hover { opacity: 0.8; text-decoration: underline; }
   .welcome-footer {
     font-size: clamp(13px, 1.1vw, 18px);
     color: var(--text-secondary); opacity: 0.5;

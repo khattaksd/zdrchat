@@ -23,12 +23,12 @@
 </script>
 
 <!-- Overlay -->
-<div class="overlay" on:click={onClose}></div>
+<div class="overlay" onclick={onClose}></div>
 
 <div class="panel">
   <div class="panel-header">
     <h3>⚙️ Settings</h3>
-    <button class="close-btn" on:click={onClose}>✕</button>
+    <button class="close-btn" onclick={onClose}>✕</button>
   </div>
 
   <div class="panel-body">
@@ -43,11 +43,11 @@
             placeholder="sk-or-v1-..."
             class="input"
           />
-          <button class="toggle-vis" on:click={() => showKey = !showKey}>
+          <button class="toggle-vis" onclick={() => showKey = !showKey}>
             {showKey ? '🙈' : '👁️'}
           </button>
         </div>
-        <button class="btn-sm" on:click={() => onUpdateKey(localKey)} disabled={!localKey.trim()}>Update</button>
+        <button class="btn-sm" onclick={() => onUpdateKey(localKey)} disabled={!localKey.trim()}>Update</button>
       </div>
       <p class="note">🔑 Stored in your browser only. Never sent anywhere except to OpenRouter.</p>
     </section>
@@ -60,7 +60,7 @@
           <button
             class="theme-btn"
             class:active={theme === t.value}
-            on:click={() => onUpdateTheme(t.value)}
+            onclick={() => onUpdateTheme(t.value)}
           >{t.label}</button>
         {/each}
       </div>
@@ -81,6 +81,16 @@
       >
         ⚙️ OpenRouter Privacy Settings →
       </a>
+    </section>
+
+    <!-- Ethics -->
+    <section class="section">
+      <h4>ℹ️ About</h4>
+      <p class="note">
+        ZDR Chat is an <strong>independent, open-source project</strong>. Not affiliated with OpenRouter.ai.
+        We don't earn commissions, resell tokens, or track usage.
+        Built for privacy, not profit.
+      </p>
     </section>
 
     <!-- Account -->
