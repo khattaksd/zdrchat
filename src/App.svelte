@@ -36,8 +36,8 @@
   let _apiKey = $state('');
   let _defaultModel = $state('');
   let _models: Model[] = $state([]);
-  let _zdrOnly = $state(true);
-  let _noTraining = $state(true);
+  let _zdrOnly = $state(false);
+  let _noTraining = $state(false);
   let _theme: string = $state('dark');
   let _creditBalance: number | null = $state(null);
   let _online = $state(true);
@@ -74,8 +74,8 @@
     const savedKey = await getSetting('apiKey', '');
     const savedTheme = await getSetting('theme', 'dark');
     const savedModel = await getSetting('defaultModel', '');
-    const savedZdr = await getSetting('zdrOnly', true);
-    const savedNoTrain = await getSetting('noTraining', true);
+    const savedZdr = await getSetting('zdrOnly', false);
+    const savedNoTrain = await getSetting('noTraining', false);
 
     if (savedKey) {
       _apiKey = savedKey;
@@ -121,7 +121,7 @@
       categorizeModels(models);
 
       if (!_defaultModel && models.length > 0) {
-        const smartModel = models.find(m => m.id.includes('claude-sonnet') || m.id.includes('gpt-4o'));
+        const smartModel = models.find(m => m.id.startsWith('anthropic/claude-sonnet') || m.id.startsWith('anthropic/claude-opus'));
         const id = smartModel?.id || models[0].id;
         _defaultModel = id;
         settingsStore.setDefaultModel(id);

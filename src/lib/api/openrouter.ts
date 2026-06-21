@@ -94,5 +94,13 @@ export class OpenRouterClient {
         };
       }
     }
+  } catch (err: any) {
+    // Handle rate limits with a clear message
+    const status = err?.status || err?.cause?.status;
+    const msg = err?.message || String(err);
+    if (status === 429 || msg.includes('429') || msg.includes('Too Many Requests')) {
+      throw new Error('Rate limited by OpenRouter. Please wait a moment before sending another message. Free tier limits are lower — try a free model or add credits to your OpenRouter account.');
+    }
+    throw err;
   }
 }
