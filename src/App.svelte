@@ -409,6 +409,12 @@
       </button>
     </div>
 
+    <div class="header-center">
+      <a href="/" class="logo" title="zdr.chat — Zero Data Retention chat">
+        <span class="logo-zdr">ZDR</span><span class="logo-dot">.</span><span class="logo-chat">chat</span>
+      </a>
+    </div>
+
     <div class="header-right">
       <button class="btn-icon" on:click={() => showSettings = !showSettings} title="Settings">⚙️</button>
       <button class="btn-icon" on:click={toggleTheme} title="Toggle theme">🎨</button>
@@ -610,7 +616,20 @@
     flex-shrink: 0; background: var(--header-bg); z-index: 10;
   }
   .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-center {
+    display: flex; align-items: center; position: absolute; left: 50%;
+    transform: translateX(-50%);
+  }
   .header-right { display: flex; align-items: center; gap: 4px; }
+
+  .logo {
+    text-decoration: none; display: flex; align-items: center; gap: 0;
+    font-size: var(--font-lg); font-weight: 700; letter-spacing: -0.5px;
+    user-select: none;
+  }
+  .logo-zdr { color: var(--accent); }
+  .logo-dot { color: var(--text-secondary); opacity: 0.4; }
+  .logo-chat { color: var(--text); opacity: 0.7; font-weight: 400; }
 
   .sidebar-wrapper {
     width: 260px; overflow: hidden; flex-shrink: 0; height: 100%;
