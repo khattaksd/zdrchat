@@ -400,14 +400,13 @@
   }
 </script>
 
-<div class="app-shell" class:sidebar-open={showSidebar}>
+<div class="app-shell">
   <!-- Header -->
   <header class="header">
     <div class="header-left">
       <button class="btn-icon" on:click={() => showSidebar = !showSidebar} title="Toggle sidebar">
         <span class="icon">☰</span>
       </button>
-      <span class="lock-badge" title="Your data stays on this device">🔒 Private</span>
     </div>
 
     <div class="header-center">
@@ -428,14 +427,14 @@
 
   <div class="layout">
     <!-- Sidebar -->
-    {#if showSidebar}
+    <div class="sidebar-wrapper" class:collapsed={!showSidebar}>
       <Sidebar
         conversations={_conversations}
         activeId={_activeConvId}
         onSelect={selectConversation}
         onNew={newConversation}
       />
-    {/if}
+    </div>
 
     <!-- Main content -->
     <main class="main-content">
@@ -620,7 +619,13 @@
   .header-center { display: flex; align-items: center; }
   .header-right { display: flex; align-items: center; gap: 4px; }
 
-  .lock-badge { font-size: var(--font-sm); opacity: 0.8; }
+  .sidebar-wrapper {
+    width: 260px; overflow: hidden; flex-shrink: 0;
+    transition: width 0.25s ease, opacity 0.25s ease;
+  }
+  .sidebar-wrapper.collapsed {
+    width: 0; opacity: 0;
+  }
 
   .model-selector {
     display: flex; align-items: center; gap: 8px;
@@ -725,6 +730,6 @@
 
   @media (max-width: 768px) {
     .message { max-width: 92%; }
-    .sidebar-open .sidebar { display: none; }
+    .sidebar-wrapper:not(.collapsed) { position: fixed; left: 0; top: 52px; bottom: 40px; z-index: 20; }
   }
 </style>
