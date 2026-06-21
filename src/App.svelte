@@ -437,13 +437,14 @@
       </p>
 
       <div class="welcome-footer">
-        <a href="https://zdr.chat" target="_blank" rel="noopener">zdr.chat</a>
-        <span class="welcome-dot">·</span>
-        <span>Made for the privacy-conscious</span>
-        <span class="welcome-dot">·</span>
-        <a href="https://github.com/khattaksd/zdrchat" target="_blank" rel="noopener">GitHub</a>
-        <span class="welcome-dot">·</span>
-        <a href="https://openrouter.ai/settings/privacy" target="_blank" rel="noopener">Privacy</a>
+        <div class="welcome-footer-tagline">Made for the privacy-conscious</div>
+        <div class="welcome-footer-links">
+          <a href="https://zdr.chat" target="_blank" rel="noopener">zdr.chat</a>
+          <span class="welcome-dot">·</span>
+          <a href="https://github.com/khattaksd/zdrchat" target="_blank" rel="noopener">GitHub</a>
+          <span class="welcome-dot">·</span>
+          <a href="https://openrouter.ai/settings/privacy" target="_blank" rel="noopener">Privacy</a>
+        </div>
       </div>
     </div>
     <span class="welcome-build">{__BUILD_TIME__}</span>
@@ -695,8 +696,10 @@
   .welcome-cta a:hover { text-decoration: underline; }
   .welcome-footer {
     font-size: 13px; color: var(--text-secondary); opacity: 0.5;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
   }
+  .welcome-footer-tagline { opacity: 0.8; }
+  .welcome-footer-links { display: flex; align-items: center; gap: 6px; }
   .welcome-footer a { color: inherit; text-decoration: none; }
   .welcome-footer a:hover { opacity: 0.8; }
   .welcome-dot { opacity: 0.4; }
