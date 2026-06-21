@@ -421,6 +421,8 @@
       <p class="welcome-tagline">No account · No servers · No tracking</p>
 
       <form class="welcome-input-row" onsubmit={handleWelcomeSubmit}>
+        <!-- Hidden username field required by Chromium for password form accessibility -->
+        <input type="text" name="username" autocomplete="username" hidden value="openrouter-key" />
         <input
           type="password"
           autocomplete="new-password"

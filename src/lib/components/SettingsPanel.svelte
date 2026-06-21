@@ -43,7 +43,7 @@
     <section class="section">
       <h4>API Key</h4>
       <form class="key-row" onsubmit={handleKeySubmit}>
-        <div class="key-input-wrapper">
+        <input type="text" name="username" autocomplete="username" hidden value="openrouter-key" />
           <input
             type={showKey ? 'text' : 'password'}
             autocomplete={showKey ? 'off' : 'new-password'}
