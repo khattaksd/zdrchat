@@ -437,6 +437,8 @@
       </p>
 
       <div class="welcome-footer">
+        <a href="https://zdr.chat" target="_blank" rel="noopener">zdr.chat</a>
+        <span class="welcome-dot">·</span>
         <span>Made for the privacy-conscious</span>
         <span class="welcome-dot">·</span>
         <a href="https://github.com/khattaksd/zdrchat" target="_blank" rel="noopener">GitHub</a>
@@ -457,7 +459,7 @@
     </div>
 
     <div class="header-center">
-      <a href="/" class="logo" title="zdr.chat — Zero Data Retention chat">
+      <a href="https://zdr.chat" target="_blank" rel="noopener" class="logo" title="ZDR Chat — visit zdr.chat">
         <span class="logo-zdr">ZDR</span><span class="logo-dot">.</span><span class="logo-chat">chat</span>
       </a>
     </div>
