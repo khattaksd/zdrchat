@@ -400,8 +400,7 @@
     initClient(key);
   }
 
-  function handleWelcomeSubmit(e: SubmitEvent) {
-    e.preventDefault();
+  function handleWelcomeSubmit() {
     if (keyInputText.trim()) {
       handleApiKeySubmit(keyInputText);
       keyInputText = '';
@@ -420,24 +419,16 @@
       <h1 class="welcome-title">Your Private AI</h1>
       <p class="welcome-tagline">No account · No servers · No tracking</p>
 
-      <form class="welcome-input-row" onsubmit={handleWelcomeSubmit}>
-        <input
-          type="text"
-          inputmode="text"
-          autocomplete="off"
-          name="openrouter_key"
-          class="welcome-key-input"
-          placeholder="Paste your OpenRouter key"
-          bind:value={keyInputText}
-        />
+      <div class="welcome-input-row">
+        <MaskedInput bind:value={keyInputText} placeholder="Paste your OpenRouter key" name="openrouter_key" onkeydown={(e) => { if (e.key === 'Enter') handleWelcomeSubmit(); }} />
         <button
-          type="submit"
           class="welcome-connect-btn"
           disabled={!keyInputText.trim()}
+          onclick={handleWelcomeSubmit}
         >
           Connect
         </button>
-      </form>
+      </div>
 
       <p class="welcome-key-note">
         🔑 Your key stays in this browser. Never sent anywhere except to OpenRouter.
@@ -710,17 +701,6 @@
     max-width: 500px;
     margin-left: auto; margin-right: auto;
   }
-  .welcome-key-input {
-    flex: 1;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid var(--border); background: var(--input-bg);
-    color: var(--text);
-    font-size: 16px;
-    font-family: monospace;
-    -webkit-text-security: disc;
-  }
-  .welcome-key-input:focus { outline: none; border-color: var(--accent); }
   .welcome-connect-btn {
     padding: 12px 24px;
     border-radius: 10px; border: none;
