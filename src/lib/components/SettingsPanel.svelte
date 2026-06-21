@@ -9,6 +9,7 @@
     onClose = () => {},
   } = $props();
 
+  // svelte-ignore state_referenced_locally
   let localKey = $state(apiKey);
   let showKey = $state(false);
 
@@ -23,7 +24,8 @@
 </script>
 
 <!-- Overlay -->
-<div class="overlay" onclick={onClose}></div>
+<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+<div class="overlay" role="presentation" onclick={onClose} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}></div>
 
 <div class="panel">
   <div class="panel-header">
@@ -136,11 +138,6 @@
   .theme-btn:hover { border-color: var(--accent); }
   .theme-btn.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
 
-  .toggle-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 0; font-size: 13px; cursor: pointer;
-  }
-  .toggle-row input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
   .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; opacity: 0.7; }
   .privacy-link {
     display: inline-flex; align-items: center; gap: 6px;

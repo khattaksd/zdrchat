@@ -412,22 +412,21 @@
       <h1 class="welcome-title">Your Private AI</h1>
       <p class="welcome-tagline">No account · No servers · No tracking</p>
 
-      <div class="welcome-input-row">
+      <form class="welcome-input-row" onsubmit={(e) => { e.preventDefault(); if (keyInputText.trim()) { handleApiKeySubmit(keyInputText); keyInputText = ''; } }}>
         <input
           type="password"
           class="welcome-key-input"
           placeholder="Paste your OpenRouter key"
           bind:value={keyInputText}
-          onkeydown={(e) => { if (e.key === 'Enter') { handleApiKeySubmit(keyInputText); keyInputText = ''; } }}
         />
         <button
+          type="submit"
           class="welcome-connect-btn"
           disabled={!keyInputText.trim()}
-          onclick={() => { handleApiKeySubmit(keyInputText); keyInputText = ''; }}
         >
           Connect
         </button>
-      </div>
+      </form>
 
       <p class="welcome-key-note">
         🔑 Your key stays in this browser. Never sent anywhere except to OpenRouter.
@@ -738,8 +737,6 @@
     opacity: 0.45;
     margin: clamp(4px, 0.5vw, 8px) 0 clamp(32px, 5vw, 72px);
   }
-  .welcome-ethics a { color: inherit; text-decoration: none; }
-  .welcome-ethics a:hover { opacity: 0.8; text-decoration: underline; }
   .welcome-footer {
     font-size: clamp(13px, 1.1vw, 18px);
     color: var(--text-secondary); opacity: 0.5;
