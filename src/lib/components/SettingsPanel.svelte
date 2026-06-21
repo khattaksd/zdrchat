@@ -37,11 +37,12 @@
     <!-- API Key -->
     <section class="section">
       <h4>API Key</h4>
-      <div class="key-row">
+      <form class="key-row" onsubmit={(e) => { e.preventDefault(); if (localKey.trim()) onUpdateKey(localKey); }}>
         <div class="key-input-wrapper">
           <input
             type={showKey ? 'text' : 'password'}
             autocomplete={showKey ? 'off' : 'new-password'}
+            name="openrouter_key"
             bind:value={localKey}
             placeholder="sk-or-v1-..."
             class="input"
@@ -50,8 +51,8 @@
             {showKey ? '🙈' : '👁️'}
           </button>
         </div>
-        <button class="btn-sm" onclick={() => onUpdateKey(localKey)} disabled={!localKey.trim()}>Update</button>
-      </div>
+        <button type="submit" class="btn-sm" disabled={!localKey.trim()}>Update</button>
+      </form>
       <p class="note">🔑 Stored in your browser only. Never sent anywhere except to OpenRouter.</p>
     </section>
 

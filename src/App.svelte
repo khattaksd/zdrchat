@@ -416,6 +416,7 @@
         <input
           type="password"
           autocomplete="new-password"
+          name="openrouter_key"
           class="welcome-key-input"
           placeholder="Paste your OpenRouter key"
           bind:value={keyInputText}
