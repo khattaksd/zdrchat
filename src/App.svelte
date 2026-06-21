@@ -664,7 +664,7 @@
   .welcome-center {
     text-align: center; max-width: 440px; padding: 24px;
   }
-  .welcome-logo { margin-bottom: 24px; }
+  .welcome-logo { margin-bottom: 24px; display: block; margin-left: auto; margin-right: auto; }
   .welcome-title {
     margin: 0 0 8px; font-size: 28px; font-weight: 700;
     color: var(--text);
@@ -700,7 +700,7 @@
   .welcome-dot { opacity: 0.4; }
   .welcome-build {
     position: fixed; bottom: 12px; right: 16px;
-    font-family: monospace; font-size: 11px; opacity: 0.2;
+    font-family: monospace; font-size: 11px; opacity: 0.45;
     color: var(--text);
   }
   .app-shell { display: flex; flex-direction: column; height: 100vh; background: var(--bg); color: var(--text); }
