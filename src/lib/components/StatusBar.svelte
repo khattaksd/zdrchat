@@ -1,6 +1,9 @@
 <script lang="ts">
   let { online = true, modelName = '', tokensIn = 0, tokensOut = 0, cost = 0, creditBalance = null as number | null, onModelClick = () => {} } = $props();
 
+  declare var __BUILD_TIME__: string;
+  let buildTime = __BUILD_TIME__;
+
   function formatTokens(n: number): string {
     if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
     return String(n);
@@ -37,6 +40,7 @@
     <span class="status-health" style="color: {healthColor}" title="{healthLabel === 'live' ? 'Connected to OpenRouter' : 'Offline'}">
       ● {healthLabel}
     </span>
+    <span class="status-build" title="Build time">{buildTime}</span>
   </div>
 </footer>
 
@@ -95,4 +99,9 @@
     transition: all 0.15s ease; cursor: default; position: relative;
   }
   .status-health:hover { background: var(--surface); transform: scale(1.35); z-index: 2; }
+  .status-build {
+    font-family: monospace; font-size: calc(var(--font-xs) - 1px); opacity: 0.35;
+    padding: 2px 4px; border-radius: 3px; cursor: default;
+  }
+  .status-build:hover { opacity: 0.7; background: var(--surface); }
 </style>

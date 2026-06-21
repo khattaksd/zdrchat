@@ -4,6 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     svelte(),
     tailwindcss(),
@@ -13,9 +16,9 @@ export default defineConfig({
       manifest: {
         name: 'ZDR Chat',
         short_name: 'ZDR Chat',
-        description: 'Private AI chat 2014 Zero Data Retention, zero servers',
-        theme_color: '#0a0a0b',
-        background_color: '#0a0a0b',
+        description: 'Private AI chat · Zero Data Retention, zero servers',
+        theme_color: '#0F172A',
+        background_color: '#0F172A',
         display: 'standalone',
         orientation: 'any',
         start_url: '/',
