@@ -70,7 +70,7 @@
     align-items: center;
     flex: 1;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--mi-radius, 8px);
     background: var(--input-bg);
     overflow: hidden;
   }
@@ -79,11 +79,11 @@
   }
   .masked-input {
     flex: 1;
-    padding: 8px 12px;
+    padding: var(--mi-py, 8px) var(--mi-px, 12px);
     border: none;
     background: none;
     color: var(--text);
-    font-size: 13px;
+    font-size: var(--mi-font-size, 13px);
     font-family: monospace;
     outline: none;
   }
@@ -93,10 +93,10 @@
   .toggle-btn {
     background: none;
     border: none;
-    padding: 8px;
+    padding: var(--mi-py, 8px);
     cursor: pointer;
     opacity: 0.5;
-    font-size: 14px;
+    font-size: var(--mi-font-size, 13px);
     line-height: 1;
     flex-shrink: 0;
   }

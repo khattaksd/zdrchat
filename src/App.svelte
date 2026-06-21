@@ -13,6 +13,7 @@
   import Sidebar from './lib/components/Sidebar.svelte';
   import ModelPicker from './lib/components/ModelPicker.svelte';
   import SettingsPanel from './lib/components/SettingsPanel.svelte';
+  import MaskedInput from './lib/components/MaskedInput.svelte';
 
   // Reactive: $chatStore etc auto-subscribe in templates
   // For imperative reads in script, use get() or local $state mirrors
@@ -700,6 +701,10 @@
     margin-bottom: 16px;
     max-width: 500px;
     margin-left: auto; margin-right: auto;
+    --mi-font-size: 16px;
+    --mi-py: 12px;
+    --mi-px: 16px;
+    --mi-radius: 10px;
   }
   .welcome-connect-btn {
     padding: 12px 24px;

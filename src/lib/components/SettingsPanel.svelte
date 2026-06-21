@@ -9,6 +9,7 @@
     onClose = () => {},
   } = $props();
 
+  import MaskedInput from './MaskedInput.svelte';
   // svelte-ignore state_referenced_locally
   let localKey = $state(apiKey);
 
