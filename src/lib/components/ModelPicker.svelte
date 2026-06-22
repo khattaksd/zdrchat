@@ -7,17 +7,21 @@
     buckets = {} as Record<string, Model[]>,
     currentModel = '',
     zdrSet = new Set<string>(),
+    zdrOnly = false,
     onSelect = (_id: string) => {},
     onClose = () => {},
   } = $props();
 
   let activeTab = $state('smartest');
-  let zdrFilterOnly = $state(true);
+  // When zdrOnly is enforced by user settings, the filter is locked on
+  // Default: privacy-first — filter starts on regardless of setting
+  let zdrFilterEnabled = $state(true);
+  let zdrFilterActive = $derived(zdrOnly ? true : zdrFilterEnabled);
   type SortKey = 'context' | 'price' | 'alpha';
   let sortBy = $state<SortKey>('context');
 
   let filteredModels = $derived(
-    (buckets[activeTab] || []).filter(m => zdrFilterOnly ? zdrSet.has(m.id) : true)
+    (buckets[activeTab] || []).filter(m => zdrFilterActive ? zdrSet.has(m.id) : true)
   );
 
   let allModels = $derived(
@@ -89,11 +93,15 @@
       <button class="sort-btn" class:active={sortBy === 'alpha'} onclick={() => sortBy = 'alpha'}>A-Z</button>
     </div>
     {#if zdrSet.size > 0}
-      <label class="zdr-toggle">
-        <input type="checkbox" bind:checked={zdrFilterOnly} />
-        <span>ZDR</span>
-        <span class="zdr-count">({zdrSet.size})</span>
-      </label>
+      {#if zdrOnly}
+        <span class="acronym-badge zdr" title="ZDR enforced in settings">ZDR</span>
+      {:else}
+        <label class="zdr-toggle">
+          <input type="checkbox" bind:checked={zdrFilterEnabled} />
+          <span>ZDR</span>
+          <span class="zdr-count">({zdrSet.size})</span>
+        </label>
+      {/if}
     {/if}
   </div>
 
@@ -107,7 +115,7 @@
         <div class="model-info">
           <span class="model-name">{model.name || model.id}</span>
           {#if zdrSet.has(model.id)}
-            <span class="zdr-badge" title="ZDR compliant">🔒</span>
+            <span class="acronym-badge zdr" title="Zero Data Retention — this model has endpoints that do not store your data">ZDR</span>
           {/if}
           <span class="model-id">{model.id}</span>
         </div>
@@ -187,5 +195,13 @@
   .zdr-toggle:hover { opacity: 1; }
   .zdr-toggle input { accent-color: var(--accent); width: 12px; height: 12px; }
   .zdr-count { opacity: 0.5; }
+  .acronym-badge {
+    font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 3px;
+    flex-shrink: 0; letter-spacing: 0.3px;
+  }
+  .acronym-badge.zdr {
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+  }
   .empty-models { padding: 24px; text-align: center; opacity: 0.4; font-size: 13px; }
 </style>

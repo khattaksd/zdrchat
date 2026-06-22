@@ -69,21 +69,29 @@ export class OpenRouterClient {
 
   /**
    * Streaming chat completion via the official OpenRouter SDK.
-   * Note: We do NOT send provider.zdr or dataCollection per-request.
-   * Those settings should be configured at the OpenRouter account level:
-   * https://openrouter.ai/settings/privacy
+   * Sends provider.zdr and dataCollection preferences per-request
+   * when the corresponding flags are set in the app.
    */
   async *streamCompletion(params: {
     model: string;
     messages: { role: string; content: string | any[] }[];
+    zdrOnly?: boolean;
+    noTraining?: boolean;
   }): AsyncGenerator<{ content: string; done: boolean; usage?: { prompt_tokens: number; completion_tokens: number; cost: number } }> {
-    const body = {
+    const provider: Record<string, unknown> = {};
+    if (params.zdrOnly) provider.zdr = true;
+    if (params.noTraining) provider.dataCollection = 'deny';
+
+    const body: Record<string, unknown> = {
       chatRequest: {
         model: params.model,
         messages: params.messages,
         stream: true,
-      },
+      } as Record<string, unknown>,
     };
+    if (Object.keys(provider).length > 0) {
+      (body.chatRequest as Record<string, unknown>).provider = provider;
+    }
 
     try {
       const stream: any = await this.sdk.chat.send(body);

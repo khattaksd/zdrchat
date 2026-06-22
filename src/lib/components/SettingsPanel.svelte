@@ -4,8 +4,12 @@
     theme = 'dark',
     creditBalance = null as number | null,
     storageInfo = {} as Record<string, any>,
+    zdrOnly = false,
+    noTraining = false,
     onUpdateKey = (_key: string) => {},
     onUpdateTheme = (_t: string) => {},
+    onUpdateZdrOnly = (_v: boolean) => {},
+    onUpdateNoTraining = (_v: boolean) => {},
     onClose = () => {},
   } = $props();
 
@@ -65,18 +69,17 @@
     <!-- Privacy -->
     <section class="section">
       <h4>🔒 Privacy</h4>
-      <p class="note" style="margin-bottom: 12px;">
-        Data retention and training policies are controlled at your OpenRouter account level.
-        Configure them once and they apply to all requests from this key.
+      <label class="toggle-row">
+        <input type="checkbox" checked={zdrOnly} onchange={(e) => onUpdateZdrOnly((e.target as HTMLInputElement).checked)} />
+        <span><strong>ZDR</strong> (Zero Data Retention) — only use models that don't store your data</span>
+      </label>
+      <label class="toggle-row">
+        <input type="checkbox" checked={noTraining} onchange={(e) => onUpdateNoTraining((e.target as HTMLInputElement).checked)} />
+        <span><strong>ZDC</strong> (Zero Data Collection) — request-time enforcement: sends <code>dataCollection: 'deny'</code> to OpenRouter, which routes only to providers that don't train on your data</span>
+      </label>
+      <p class="note" style="margin-top: 8px;">
+        <strong>ZDR</strong> can pre-filter models in the picker. <strong>ZDC</strong> is enforced at request time — if no provider supports it, OpenRouter returns an error.
       </p>
-      <a
-        href="https://openrouter.ai/settings/privacy"
-        target="_blank"
-        rel="noopener"
-        class="privacy-link"
-      >
-        ⚙️ OpenRouter Privacy Settings →
-      </a>
     </section>
 
     <!-- Ethics -->
@@ -128,11 +131,9 @@
   .theme-btn.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
 
   .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; opacity: 0.7; }
-  .privacy-link {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); font-size: 13px;
-    text-decoration: none; cursor: pointer;
+  .toggle-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; cursor: pointer; padding: 6px 0;
   }
-  .privacy-link:hover { border-color: var(--accent); }
+  .toggle-row input { accent-color: var(--accent); width: 16px; height: 16px; }
 </style>
