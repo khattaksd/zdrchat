@@ -70,7 +70,6 @@
     bind:this={inputEl}
     class="chat-input"
     placeholder="Type your message..."
-      autofocus
     bind:value={inputText}
     onkeydown={handleKeydown}
     disabled={chat.isStreaming}
