@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Conversation } from '../db/dexie';
+  import type { Conversation } from '$lib/db/dexie';
 
   let {
     conversations = [] as Conversation[],

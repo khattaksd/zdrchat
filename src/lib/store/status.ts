@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { Model } from '../api/types';
+import type { Model } from '$lib/api/types';
 
 export interface StatusState {
   currentModel: Model | null;
