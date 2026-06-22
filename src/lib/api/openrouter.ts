@@ -78,20 +78,17 @@ export class OpenRouterClient {
     zdrOnly?: boolean;
     noTraining?: boolean;
   }): AsyncGenerator<{ content: string; done: boolean; usage?: { prompt_tokens: number; completion_tokens: number; cost: number } }> {
-    const provider: Record<string, unknown> = {};
-    if (params.zdrOnly) provider.zdr = true;
-    if (params.noTraining) provider.dataCollection = 'deny';
-
-    const body: Record<string, unknown> = {
+    const body: any = {
       chatRequest: {
         model: params.model,
         messages: params.messages,
         stream: true,
-      } as Record<string, unknown>,
+      },
     };
-    if (Object.keys(provider).length > 0) {
-      (body.chatRequest as Record<string, unknown>).provider = provider;
-    }
+    if (params.zdrOnly) body.chatRequest.provider = body.chatRequest.provider || {};
+    if (params.zdrOnly) body.chatRequest.provider.zdr = true;
+    if (params.noTraining) body.chatRequest.provider = body.chatRequest.provider || {};
+    if (params.noTraining) body.chatRequest.provider.dataCollection = 'deny';
 
     try {
       const stream: any = await this.sdk.chat.send(body);
