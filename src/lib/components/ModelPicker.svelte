@@ -14,12 +14,14 @@
 
   let activeTab = $state('smartest');
   // When zdrOnly is enforced by user settings, the filter is locked on
-  let zdrFilterOnly = $state(true);
+  // Default: privacy-first — filter starts on regardless of setting
+  let zdrFilterEnabled = $state(true);
+  let zdrFilterActive = $derived(zdrOnly ? true : zdrFilterEnabled);
   type SortKey = 'context' | 'price' | 'alpha';
   let sortBy = $state<SortKey>('context');
 
   let filteredModels = $derived(
-    (buckets[activeTab] || []).filter(m => zdrFilterOnly ? zdrSet.has(m.id) : true)
+    (buckets[activeTab] || []).filter(m => zdrFilterActive ? zdrSet.has(m.id) : true)
   );
 
   let allModels = $derived(
@@ -95,7 +97,7 @@
         <span class="acronym-badge zdr" title="ZDR enforced in settings">ZDR</span>
       {:else}
         <label class="zdr-toggle">
-          <input type="checkbox" bind:checked={zdrFilterOnly} />
+          <input type="checkbox" bind:checked={zdrFilterEnabled} />
           <span>ZDR</span>
           <span class="zdr-count">({zdrSet.size})</span>
         </label>
