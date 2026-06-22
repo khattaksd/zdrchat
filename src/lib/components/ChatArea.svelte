@@ -8,6 +8,13 @@
     handleSend = undefined as (() => void) | undefined,
     handleKeydown = undefined as ((e: KeyboardEvent) => void) | undefined,
   } = $props();
+
+  // Auto-focus input on mount and when starting a new conversation
+  $effect(() => {
+    if (!chat.activeConversationId && chat.messages.length === 0 && inputEl) {
+      inputEl.focus();
+    }
+  });
 </script>
 
 {#if !chat.activeConversationId && chat.messages.length === 0}
@@ -63,6 +70,7 @@
     bind:this={inputEl}
     class="chat-input"
     placeholder="Type your message..."
+      autofocus
     bind:value={inputText}
     onkeydown={handleKeydown}
     disabled={chat.isStreaming}
