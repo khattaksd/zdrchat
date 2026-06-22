@@ -344,7 +344,6 @@
       currentModel={settings.defaultModel}
       zdrSet={new Set(settings.models.filter(m => m.hasZdrEndpoint).map(m => m.id))}
       zdrOnly={settings.zdrOnly}
-      noTraining={settings.noTraining}
       onSelect={(modelId: string) => {
         settings.defaultModel = modelId;
         const model = settings.models.find(m => m.id === modelId);

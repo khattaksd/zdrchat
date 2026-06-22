@@ -8,7 +8,6 @@
     currentModel = '',
     zdrSet = new Set<string>(),
     zdrOnly = false,
-    noTraining = false,
     onSelect = (_id: string) => {},
     onClose = () => {},
   } = $props();
@@ -18,8 +17,6 @@
   let zdrFilterOnly = $state(true);
   type SortKey = 'context' | 'price' | 'alpha';
   let sortBy = $state<SortKey>('context');
-
-  let showZdrToggle = $derived(zdrSet.size > 0 && !zdrOnly);
 
   let filteredModels = $derived(
     (buckets[activeTab] || []).filter(m => zdrFilterOnly ? zdrSet.has(m.id) : true)
@@ -103,9 +100,6 @@
           <span class="zdr-count">({zdrSet.size})</span>
         </label>
       {/if}
-    {/if}
-    {#if noTraining}
-      <span class="acronym-badge zdc" title="Zero Data Collection — only using providers that do not train on your data">ZDC</span>
     {/if}
   </div>
 
@@ -206,13 +200,6 @@
   .acronym-badge.zdr {
     background: color-mix(in srgb, var(--accent) 15%, transparent);
     color: var(--accent);
-  }
-  .acronym-badge.zdc {
-    background: color-mix(in srgb, #f59e0b 15%, transparent);
-    color: #f59e0b;
-  }
-  .no-train-badge {
-    font-size: 11px; opacity: 0.6; cursor: default;
   }
   .empty-models { padding: 24px; text-align: center; opacity: 0.4; font-size: 13px; }
 </style>

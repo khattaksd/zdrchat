@@ -75,11 +75,10 @@
       </label>
       <label class="toggle-row">
         <input type="checkbox" checked={noTraining} onchange={(e) => onUpdateNoTraining((e.target as HTMLInputElement).checked)} />
-        <span><strong>ZDC</strong> (Zero Data Collection) — only use providers that don't train on your data</span>
+        <span><strong>ZDC</strong> (Zero Data Collection) — request-time enforcement: sends <code>dataCollection: 'deny'</code> to OpenRouter, which routes only to providers that don't train on your data</span>
       </label>
       <p class="note" style="margin-top: 8px;">
-        When enabled, the model picker shows a <strong>ZDR</strong>/<strong>ZDC</strong> badge and the API enforces your preference.
-        See the app docs for details on what each acronym means.
+        <strong>ZDR</strong> can pre-filter models in the picker. <strong>ZDC</strong> is enforced at request time — if no provider supports it, OpenRouter returns an error.
       </p>
     </section>
 
