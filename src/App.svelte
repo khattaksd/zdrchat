@@ -78,10 +78,9 @@
       ]);
 
       // Tag each model with ZDR availability
-      // Match against both id and canonicalSlug since the ZDR endpoint
-      // may use either format (permaslug vs full id with version date)
+      // ZDR endpoint modelId matches model.id (base slug, no version suffix)
       for (const m of models) {
-        m.hasZdrEndpoint = zdrSet.has(m.id) || zdrSet.has(m.canonicalSlug || m.id);
+        m.hasZdrEndpoint = zdrSet.has(m.id);
       }
 
       settings.models = models;
