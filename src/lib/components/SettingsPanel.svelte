@@ -71,15 +71,15 @@
       <h4>🔒 Privacy</h4>
       <label class="toggle-row">
         <input type="checkbox" checked={zdrOnly} onchange={(e) => onUpdateZdrOnly((e.target as HTMLInputElement).checked)} />
-        <span>ZDR only — only use models that don't store your data</span>
+        <span><strong>ZDR</strong> (Zero Data Retention) — only use models that don't store your data</span>
       </label>
       <label class="toggle-row">
         <input type="checkbox" checked={noTraining} onchange={(e) => onUpdateNoTraining((e.target as HTMLInputElement).checked)} />
-        <span>No training — only use providers that don't train on your data</span>
+        <span><strong>ZDC</strong> (Zero Data Collection) — only use providers that don't train on your data</span>
       </label>
       <p class="note" style="margin-top: 8px;">
-        When enabled, the model picker will filter to only compatible models
-        and the API request will enforce your preference.
+        When enabled, the model picker shows a <strong>ZDR</strong>/<strong>ZDC</strong> badge and the API enforces your preference.
+        See the app docs for details on what each acronym means.
       </p>
     </section>
 
@@ -132,13 +132,6 @@
   .theme-btn.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
 
   .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; opacity: 0.7; }
-  .privacy-link {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); font-size: 13px;
-    text-decoration: none; cursor: pointer;
-  }
-  .privacy-link:hover { border-color: var(--accent); }
   .toggle-row {
     display: flex; align-items: center; gap: 8px;
     font-size: 13px; cursor: pointer; padding: 6px 0;
