@@ -25,7 +25,7 @@
   let client: OpenRouterClient | null = null;
   let inputText = $state("");
 
-  let showSidebar = $state(window.innerWidth > 768);
+  let showSidebar = $state(true);
   let showModelPicker = $state(false);
   let showSettings = $state(false);
   let messagesEnd: HTMLDivElement | undefined = $state();
@@ -317,7 +317,7 @@
     <header class="header">
       <div class="header-left">
         <button
-          class="btn-icon"
+          class="btn-icon sidebar-toggle"
           onclick={() => (showSidebar = !showSidebar)}
           title="Toggle sidebar"
         >
@@ -359,12 +359,6 @@
     </header>
 
     <div class="layout">
-      <!-- Sidebar overlay backdrop (mobile only) -->
-      {#if showSidebar}
-        <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-        <div class="sidebar-backdrop" onclick={() => showSidebar = false} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') showSidebar = false; }}></div>
-      {/if}
-
       <!-- Sidebar -->
       <div class="sidebar-wrapper" class:collapsed={!showSidebar}>
         <Sidebar
@@ -557,25 +551,12 @@
     position: relative;
   }
 
-  .sidebar-backdrop {
-    display: none;
-  }
-
   @media (max-width: 768px) {
-    .sidebar-wrapper:not(.collapsed) {
-      position: fixed;
-      left: 0;
-      top: 52px;
-      bottom: 40px;
-      z-index: 20;
+    .sidebar-wrapper {
+      display: none;
     }
-    .sidebar-backdrop {
-      position: fixed;
-      inset: 0;
-      top: 52px;
-      bottom: 40px;
-      z-index: 19;
-      background: rgba(0, 0, 0, 0.4);
+    .sidebar-toggle {
+      display: none;
     }
   }
 </style>
