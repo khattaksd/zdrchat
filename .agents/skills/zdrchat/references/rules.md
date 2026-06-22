@@ -2,7 +2,7 @@
 
 ## Git Workflow
 
-- **Always branch before editing** — create a feature branch from `main` for any code change: new features, bug fixes, cleanups, refactors, config changes. Merge via PR to `main`.
+- **Always branch before editing** — create a feature branch from `main` (not from another branch) for any code change: new features, bug fixes, cleanups, refactors, config changes. Always `git checkout main && git pull` first, then `git checkout -b my-branch`. Merge via PR to `main`.
 - **No direct commits to `main`** — all changes go through a branch + PR workflow.
 - **No staging branch** — branch from `main` only.
 
