@@ -14,24 +14,8 @@
   <!-- Empty state -->
   <div class="empty-state">
     <div class="empty-content">
-      <h2>Your private AI awaits</h2>
-      <p>Type a message or upload a document to start chatting.</p>
-      <p class="empty-privacy">🔒 Everything stays in this browser. Even we can't see it.</p>
-    </div>
-    <div class="input-area">
-      <textarea
-        bind:this={inputEl}
-        class="chat-input"
-        placeholder="Type your message..."
-        bind:value={inputText}
-        onkeydown={handleKeydown}
-        rows="1"
-      ></textarea>
-      <button
-        class="btn-send"
-        disabled={!inputText.trim() || chat.isStreaming}
-        onclick={handleSend}
-      >➤</button>
+      <h2>Start a conversation</h2>
+      <p>Type a message below or pick a model from the status bar.</p>
     </div>
   </div>
 {:else}
@@ -72,7 +56,7 @@
     <div bind:this={messagesEnd}></div>
   </div>
 
-  <!-- Input area -->
+  <!-- Input area - always at bottom -->
   <div class="input-area">
     <textarea
       bind:this={inputEl}
@@ -94,13 +78,12 @@
 <style>
   /* Empty state */
   .empty-state {
-    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 24px; gap: 24px;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 24px;
   }
   .empty-content { text-align: center; }
   .empty-content h2 { margin: 0 0 var(--pad-sm); font-size: var(--font-xl); }
   .empty-content p { margin: 0; font-size: var(--font-md); opacity: 0.7; }
-  .empty-privacy { margin-top: var(--pad-sm) !important; font-size: var(--font-sm) !important; }
 
   /* Messages */
   .messages-area {
