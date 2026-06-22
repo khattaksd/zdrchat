@@ -25,7 +25,7 @@ triggers:
 
 ### "I need to work on the code"
 ```
-New feature / bug fix?
+New feature / bug fix / cleanup / refactor / config change?
 └── Branch from main → PR to main
 ```
 
@@ -47,6 +47,7 @@ Push to GitHub
 
 ## Critical Rules
 
+- **Branch before changes** — always create a feature branch from `main` before editing code. Cleanup, config fixes, and refactors are no exception.
 - **No staging branch** — branch from `main` only
 - **No manual deploy** — Git push is the deploy mechanism
 - **No server backend** — everything runs client-side

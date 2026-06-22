@@ -1,5 +1,11 @@
 # Rules, Principles & Anti-Patterns
 
+## Git Workflow
+
+- **Always branch before editing** — create a feature branch from `main` for any code change: new features, bug fixes, cleanups, refactors, config changes. Merge via PR to `main`.
+- **No direct commits to `main`** — all changes go through a branch + PR workflow.
+- **No staging branch** — branch from `main` only.
+
 ## Design Principles
 
 1. **Zero servers, zero accounts** — no auth, no backend, no API proxies. The app must work with a simple `npx serve dist`.
