@@ -359,6 +359,12 @@
     </header>
 
     <div class="layout">
+      <!-- Sidebar overlay backdrop (mobile only) -->
+      {#if showSidebar}
+        <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+        <div class="sidebar-backdrop" onclick={() => showSidebar = false} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') showSidebar = false; }}></div>
+      {/if}
+
       <!-- Sidebar -->
       <div class="sidebar-wrapper" class:collapsed={!showSidebar}>
         <Sidebar
@@ -551,6 +557,10 @@
     position: relative;
   }
 
+  .sidebar-backdrop {
+    display: none;
+  }
+
   @media (max-width: 768px) {
     .sidebar-wrapper:not(.collapsed) {
       position: fixed;
@@ -558,6 +568,14 @@
       top: 52px;
       bottom: 40px;
       z-index: 20;
+    }
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      top: 52px;
+      bottom: 40px;
+      z-index: 19;
+      background: rgba(0, 0, 0, 0.4);
     }
   }
 </style>
