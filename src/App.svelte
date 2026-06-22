@@ -359,6 +359,12 @@
     </header>
 
     <div class="layout">
+      <!-- Sidebar backdrop (mobile only) -->
+      {#if showSidebar}
+        <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+        <div class="sidebar-backdrop" onclick={() => showSidebar = false} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') showSidebar = false; }}></div>
+      {/if}
+
       <!-- Sidebar -->
       <div class="sidebar-wrapper" class:collapsed={!showSidebar}>
         <Sidebar
@@ -513,12 +519,16 @@
     flex-shrink: 0;
     height: 100%;
     transition:
-      width 0.25s ease,
-      opacity 0.25s ease;
+      width 0.2s ease,
+      opacity 0.2s ease;
   }
   .sidebar-wrapper.collapsed {
     width: 0;
     opacity: 0;
+  }
+
+  .sidebar-backdrop {
+    display: none;
   }
 
   .btn-icon {
@@ -552,12 +562,30 @@
   }
 
   @media (max-width: 768px) {
-    .sidebar-wrapper:not(.collapsed) {
+    .sidebar-wrapper {
       position: fixed;
       left: 0;
       top: 52px;
       bottom: 40px;
       z-index: 20;
+      width: 260px;
+      opacity: 1;
+      transform: translateX(0);
+      transition: transform 0.2s ease;
+    }
+    .sidebar-wrapper.collapsed {
+      width: 260px;
+      opacity: 1;
+      transform: translateX(-100%);
+    }
+    .sidebar-backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      top: 52px;
+      bottom: 40px;
+      z-index: 19;
+      background: rgba(0, 0, 0, 0.4);
     }
   }
 </style>
