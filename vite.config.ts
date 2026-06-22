@@ -2,6 +2,10 @@ import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 function compactBuildTime(): string {
   const d = new Date();
@@ -12,6 +16,11 @@ function compactBuildTime(): string {
 export default defineConfig({
   define: {
     __BUILD_TIME__: JSON.stringify(compactBuildTime()),
+  },
+  resolve: {
+    alias: {
+      '$lib': resolve(__dirname, 'src/lib'),
+    },
   },
   plugins: [
     svelte(),
