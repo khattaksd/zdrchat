@@ -1,7 +1,10 @@
 <script lang="ts">
-  let { online = true, modelName = '', tokensIn = 0, tokensOut = 0, cost = 0, creditBalance = null as number | null, onModelClick = () => {} } = $props();
+  let {
+    online = true, modelName = '', tokensIn = 0, tokensOut = 0, cost = 0,
+    creditBalance = null as number | null,
+    onModelClick = (_e?: Event) => {},
+  } = $props();
 
-  declare var __BUILD_TIME__: string;
   let buildTime = __BUILD_TIME__;
 
   function formatTokens(n: number): string {
@@ -22,7 +25,7 @@
 
 <footer class="status-bar">
   <div class="status-left">
-    <button class="status-model" onclick={onModelClick} title="Click to change model">
+    <button class="status-model" onclick={() => onModelClick()} title="Click to change model">
       {modelName || 'No model selected'} <span class="model-chevron">▼</span>
     </button>
   </div>

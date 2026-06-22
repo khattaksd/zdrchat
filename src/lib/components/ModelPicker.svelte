@@ -9,19 +9,16 @@
     zdrSet = new Set<string>(),
     zdrOnly = false,
     onSelect = (_id: string) => {},
-    onClose = () => {},
+    onClose = (_e?: Event) => {},
   } = $props();
 
   let activeTab = $state('smartest');
-  // When zdrOnly is enforced by user settings, the filter is locked on
-  // Default: privacy-first — filter starts on regardless of setting
-  let zdrFilterEnabled = $state(true);
-  let zdrFilterActive = $derived(zdrOnly ? true : zdrFilterEnabled);
+  // When zdrOnly is enforced in settings, filter the picker to only ZDR models
   type SortKey = 'context' | 'price' | 'alpha';
   let sortBy = $state<SortKey>('context');
 
   let filteredModels = $derived(
-    (buckets[activeTab] || []).filter(m => zdrFilterActive ? zdrSet.has(m.id) : true)
+    (buckets[activeTab] || []).filter(m => zdrOnly ? zdrSet.has(m.id) : true)
   );
 
   let allModels = $derived(
@@ -63,12 +60,12 @@
 
 <!-- Overlay backdrop -->
 <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-<div class="overlay" role="presentation" onclick={onClose} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}></div>
+<div class="overlay" role="presentation" onclick={() => onClose()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}></div>
 
 <div class="modal">
   <div class="modal-header">
     <h3>Choose a model</h3>
-    <button class="close-btn" onclick={onClose}>✕</button>
+    <button class="close-btn" onclick={() => onClose()}>✕</button>
   </div>
 
   <div class="tabs">
@@ -94,13 +91,7 @@
     </div>
     {#if zdrSet.size > 0}
       {#if zdrOnly}
-        <span class="acronym-badge zdr" title="ZDR enforced in settings">ZDR</span>
-      {:else}
-        <label class="zdr-toggle">
-          <input type="checkbox" bind:checked={zdrFilterEnabled} />
-          <span>ZDR</span>
-          <span class="zdr-count">({zdrSet.size})</span>
-        </label>
+        <span class="acronym-badge zdr" title="ZDR enforced in settings — only ZDR-compliant models shown">ZDR</span>
       {/if}
     {/if}
   </div>
@@ -175,7 +166,6 @@
   .model-meta { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
   .model-price { font-size: 11px; opacity: 0.6; }
   .model-ctx { font-size: 11px; opacity: 0.4; }
-  .zdr-badge { font-size: 12px; flex-shrink: 0; }
   .filter-bar {
     display: flex; align-items: center; justify-content: space-between; padding: 6px 12px;
     border-bottom: 1px solid var(--border); flex-shrink: 0;
@@ -188,16 +178,10 @@
   }
   .sort-btn:hover { opacity: 0.8; background: var(--surface); }
   .sort-btn.active { opacity: 1; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
-  .zdr-toggle {
-    display: flex; align-items: center; gap: 4px;
-    font-size: 11px; cursor: pointer; opacity: 0.6; user-select: none;
-  }
-  .zdr-toggle:hover { opacity: 1; }
-  .zdr-toggle input { accent-color: var(--accent); width: 12px; height: 12px; }
-  .zdr-count { opacity: 0.5; }
   .acronym-badge {
     font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 3px;
     flex-shrink: 0; letter-spacing: 0.3px;
+    align-self: flex-start;
   }
   .acronym-badge.zdr {
     background: color-mix(in srgb, var(--accent) 15%, transparent);

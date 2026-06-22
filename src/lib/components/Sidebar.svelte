@@ -5,7 +5,7 @@
     conversations = [] as Conversation[],
     activeId = null as string | null,
     onSelect = (_id: string) => {},
-    onNew = () => {},
+    onNew = (_e?: Event) => {},
   } = $props();
 
   let searchQuery = $state('');
@@ -18,7 +18,7 @@
 
 <aside class="sidebar">
   <div class="sidebar-header">
-    <button class="new-chat-btn" onclick={onNew}>
+    <button class="new-chat-btn" onclick={() => onNew()}>
       <span class="icon">✏️</span> New chat
     </button>
   </div>
