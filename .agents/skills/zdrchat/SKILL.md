@@ -1,83 +1,87 @@
 ---
 name: zdrchat
-description: ZDR Chat app — Svelte 5 PWA for private AI chat. Use when working on the ZDR Chat app at app.zdr.chat. Covers git workflow, build, deploy, and project architecture.
+description: ZDR Chat app — Svelte 5 PWA for private AI chat at app.zdr.chat. Covers git workflow, build, deploy, architecture, and common operations.
+license: MIT
+metadata:
+  project: zdrchat
+  appUrl: https://app.zdr.chat
+  landingUrl: https://zdr.chat
+  stack:
+    - Svelte 5 (runes)
+    - Vite 8 + TypeScript 6
+    - Tailwind CSS v4
+    - Dexie.js (IndexedDB)
+    - OpenRouter SDK (browser-direct)
+    - vite-plugin-pwa (Workbox)
+    - Cloudflare Pages (deploy)
+triggers:
+  - user mentions zdrchat, ZDR Chat, app.zdr.chat, or the project directory
+  - user asks about building, deploying, or OpenRouter streaming in this project
 ---
 
 # ZDR Chat — Agentic Workflow
 
-## Git Workflow
+## Decision Trees
 
-**Branch from main, never from staging:**
-
-```bash
-git checkout main && git pull origin main
-git checkout -b feat/your-feature-name
+### "I need to work on the code"
+```
+New feature / bug fix?
+└── Branch from main → PR to main
 ```
 
-Work, commit, push. Then open a PR on GitHub (your branch → `main`). Merge via GitHub UI and check ✅ **"Delete source branch"** (auto-enabled). The branch auto-deletes from GitHub.
+### "I need to build or dev"
+| Task | Command | Note |
+|------|---------|------|
+| Dev server | `npm run dev` | Vite HMR at localhost:5173 |
+| Build | `npm run build` | Outputs to `dist/` |
+| Type-check | `npm run check` | svelte-check |
+| Preview build | `npm run preview` | Serve `dist/` locally |
 
-No `staging` branch is used. No GitHub Actions workflows. No manual `wrangler` commands.
-
-## Build
-
-```bash
-npm run build      # vite build → dist/
+### "I need to deploy"
 ```
+Push to GitHub
+├── main branch → production (app.zdr.chat)
+└── any other branch → preview URL
+```
+**Never run `wrangler deploy` manually** — Cloudflare Pages auto-deploys from Git.
 
-## Deployment
+## Critical Rules
 
-Cloudflare Pages handles everything via Git integration:
+- **No staging branch** — branch from `main` only
+- **No manual deploy** — Git push is the deploy mechanism
+- **No server backend** — everything runs client-side
+- **No analytics/tracking/telemetry** — zero data retention
+- **No server-side storage** — IndexedDB + localStorage only
+- **No build-time secrets** — no `.env`, no wrangler secrets; users provide keys at runtime
+- **Don't remove PWA** — `vite-plugin-pwa` with Workbox is core
 
-- **Push to `main`** → deploys to production at **`app.zdr.chat`**
-- **Push to any other branch** → deploys as a preview URL
-- **No wrangler commands**, no GitHub Actions — the Cloudflare GitHub App detects pushes and deploys automatically
-
-## Project Architecture
-
-| Layer | Technology | Role |
-|---|---|---|
-| Framework | **Svelte 5** (runes: `$state`, `$derived`, `$props`, `$effect`) | UI components |
-| Build | **Vite 8** + **TypeScript 6** | Dev server + production bundle |
-| Styling | **Tailwind CSS v4** + CSS custom properties | 6 themes, 3 density modes |
-| State | **Svelte writable stores** | Chat, Settings, Status stores |
-| Storage | **Dexie.js** (IndexedDB via Dexie) | Conversations, messages, settings — all client-side |
-| API | **`@openrouter/sdk`** | Direct browser-to-OpenRouter calls — no backend |
-| PWA | **`vite-plugin-pwa`** (Workbox) | Offline support, installable |
-
-## Key Files
+## Quick Architecture
 
 ```
 src/
-├── App.svelte              — Main app (welcome, chat, streaming, themes, density)
-├── main.ts                 — Entry point (mounts App)
-├── app.css                 — Global styles, theme CSS custom properties
-├── lib/
-│   ├── api/
-│   │   ├── openrouter.ts   — OpenRouter streaming client
-│   │   └── types.ts        — Model types, bucket definitions
-│   ├── db/
-│   │   └── dexie.ts        — IndexedDB schema + CRUD helpers
-│   ├── store/
-│   │   ├── chat.ts         — Conversations, messages, streaming state
-│   │   ├── settings.ts     — API key, theme, default model, preferences
-│   │   └── status.ts       — Token counters, session cost, credit balance
-│   └── components/
-│       ├── Sidebar.svelte       — Conversation list with search
-│       ├── StatusBar.svelte     — Bottom bar: model, tokens, cost, credit
-│       ├── ModelPicker.svelte   — Tabbed model browser by category
-│       ├── SettingsPanel.svelte — Settings panel overlay
-│       └── MaskedInput.svelte   — Text input with CSS mask for API keys
+├── App.svelte, main.ts, app.css
+└── lib/
+    ├── api/openrouter.ts     — OpenRouter streaming (SSE from browser)
+    ├── api/types.ts          — Model buckets, type definitions
+    ├── db/dexie.ts           — IndexedDB schema (Dexie.js)
+    ├── store/
+    │   ├── chat.ts           — Conversations, messages, streaming state
+    │   ├── settings.ts       — API key, theme, preferences
+    │   └── status.ts         — Tokens, costs, credit balance
+    └── components/
+        ├── Sidebar.svelte, StatusBar.svelte, ModelPicker.svelte
+        ├── SettingsPanel.svelte, MaskedInput.svelte
 ```
 
-## Principles
+## Reference Files
 
-- Everything runs client-side — **zero servers, zero accounts**
-- **No analytics, no tracking, no telemetry**
-- User data stays in the browser (IndexedDB + localStorage)
-- The only network requests go directly to OpenRouter
-- **Zero Data Retention** — conversations, keys, settings never leave the device
+| File | When to load |
+|------|-------------|
+| [references/rules.md](references/rules.md) | User asks about project rules, principles, or anti-patterns |
+| [references/operations.md](references/operations.md) | User asks how to add a model, theme, or change PWA/Workbox config |
+| [references/architecture.md](references/architecture.md) | Deep dive on key files — store patterns, streaming, Dexie schema |
+| [references/deploy.md](references/deploy.md) | Deployment questions (this project or the landing page) |
 
-## Related Projects
+## Adjacent Project
 
-- **Landing page**: `zdrchat-landing` — Astro site at `zdr.chat` deployed to Cloudflare Pages
-- **App**: `zdrchat` — Svelte 5 PWA at `app.zdr.chat` (this project)
+Landing page at **zdr.chat** (Astro site) lives in `~/code/zdrchat-landing`.
