@@ -78,8 +78,10 @@
       ]);
 
       // Tag each model with ZDR availability
+      // Match against both id and canonicalSlug since the ZDR endpoint
+      // may use either format (permaslug vs full id with version date)
       for (const m of models) {
-        m.hasZdrEndpoint = zdrSet.has(m.id);
+        m.hasZdrEndpoint = zdrSet.has(m.id) || zdrSet.has(m.canonicalSlug || m.id);
       }
 
       settings.models = models;
@@ -147,6 +149,8 @@
         const stream = client.streamCompletion({
           model: settings.defaultModel,
           messages: apiMessages as any,
+          zdrOnly: settings.zdrOnly || undefined,
+          noTraining: settings.noTraining || undefined,
         });
 
         for await (const chunk of stream) {
@@ -339,6 +343,8 @@
       buckets={modelsByBucket}
       currentModel={settings.defaultModel}
       zdrSet={new Set(settings.models.filter(m => m.hasZdrEndpoint).map(m => m.id))}
+      zdrOnly={settings.zdrOnly}
+      noTraining={settings.noTraining}
       onSelect={(modelId: string) => {
         settings.defaultModel = modelId;
         const model = settings.models.find(m => m.id === modelId);
@@ -357,6 +363,8 @@
       theme={settings.theme}
       creditBalance={settings.creditBalance}
       storageInfo={{ conversations: chat.conversations.length }}
+      zdrOnly={settings.zdrOnly}
+      noTraining={settings.noTraining}
       onUpdateKey={(key: string) => {
         settings.apiKey = key;
         setSetting('apiKey', key);
@@ -366,6 +374,14 @@
         settings.theme = t as any;
         applyTheme(t);
         setSetting('theme', t);
+      }}
+      onUpdateZdrOnly={(v: boolean) => {
+        settings.zdrOnly = v;
+        setSetting('zdrOnly', v);
+      }}
+      onUpdateNoTraining={(v: boolean) => {
+        settings.noTraining = v;
+        setSetting('noTraining', v);
       }}
       onClose={() => showSettings = false}
     />

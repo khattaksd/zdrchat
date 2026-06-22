@@ -7,14 +7,19 @@
     buckets = {} as Record<string, Model[]>,
     currentModel = '',
     zdrSet = new Set<string>(),
+    zdrOnly = false,
+    noTraining = false,
     onSelect = (_id: string) => {},
     onClose = () => {},
   } = $props();
 
   let activeTab = $state('smartest');
+  // When zdrOnly is enforced by user settings, the filter is locked on
   let zdrFilterOnly = $state(true);
   type SortKey = 'context' | 'price' | 'alpha';
   let sortBy = $state<SortKey>('context');
+
+  let showZdrToggle = $derived(zdrSet.size > 0 && !zdrOnly);
 
   let filteredModels = $derived(
     (buckets[activeTab] || []).filter(m => zdrFilterOnly ? zdrSet.has(m.id) : true)
@@ -89,11 +94,18 @@
       <button class="sort-btn" class:active={sortBy === 'alpha'} onclick={() => sortBy = 'alpha'}>A-Z</button>
     </div>
     {#if zdrSet.size > 0}
-      <label class="zdr-toggle">
-        <input type="checkbox" bind:checked={zdrFilterOnly} />
-        <span>ZDR</span>
-        <span class="zdr-count">({zdrSet.size})</span>
-      </label>
+      {#if zdrOnly}
+        <span class="zdr-locked" title="ZDR enforced in settings">🔒 ZDR only</span>
+      {:else}
+        <label class="zdr-toggle">
+          <input type="checkbox" bind:checked={zdrFilterOnly} />
+          <span>ZDR</span>
+          <span class="zdr-count">({zdrSet.size})</span>
+        </label>
+      {/if}
+    {/if}
+    {#if noTraining}
+      <span class="no-train-badge" title="No training enforced in settings">🚫 No training</span>
     {/if}
   </div>
 
@@ -187,5 +199,14 @@
   .zdr-toggle:hover { opacity: 1; }
   .zdr-toggle input { accent-color: var(--accent); width: 12px; height: 12px; }
   .zdr-count { opacity: 0.5; }
+  .zdr-locked {
+    font-size: 11px; opacity: 0.7; cursor: default;
+    padding: 3px 8px; border-radius: 4px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+  }
+  .no-train-badge {
+    font-size: 11px; opacity: 0.6; cursor: default;
+  }
   .empty-models { padding: 24px; text-align: center; opacity: 0.4; font-size: 13px; }
 </style>

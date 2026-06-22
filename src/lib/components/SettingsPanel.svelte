@@ -4,8 +4,12 @@
     theme = 'dark',
     creditBalance = null as number | null,
     storageInfo = {} as Record<string, any>,
+    zdrOnly = false,
+    noTraining = false,
     onUpdateKey = (_key: string) => {},
     onUpdateTheme = (_t: string) => {},
+    onUpdateZdrOnly = (_v: boolean) => {},
+    onUpdateNoTraining = (_v: boolean) => {},
     onClose = () => {},
   } = $props();
 
@@ -65,18 +69,18 @@
     <!-- Privacy -->
     <section class="section">
       <h4>🔒 Privacy</h4>
-      <p class="note" style="margin-bottom: 12px;">
-        Data retention and training policies are controlled at your OpenRouter account level.
-        Configure them once and they apply to all requests from this key.
+      <label class="toggle-row">
+        <input type="checkbox" checked={zdrOnly} onchange={(e) => onUpdateZdrOnly((e.target as HTMLInputElement).checked)} />
+        <span>ZDR only — only use models that don't store your data</span>
+      </label>
+      <label class="toggle-row">
+        <input type="checkbox" checked={noTraining} onchange={(e) => onUpdateNoTraining((e.target as HTMLInputElement).checked)} />
+        <span>No training — only use providers that don't train on your data</span>
+      </label>
+      <p class="note" style="margin-top: 8px;">
+        When enabled, the model picker will filter to only compatible models
+        and the API request will enforce your preference.
       </p>
-      <a
-        href="https://openrouter.ai/settings/privacy"
-        target="_blank"
-        rel="noopener"
-        class="privacy-link"
-      >
-        ⚙️ OpenRouter Privacy Settings →
-      </a>
     </section>
 
     <!-- Ethics -->
@@ -135,4 +139,9 @@
     text-decoration: none; cursor: pointer;
   }
   .privacy-link:hover { border-color: var(--accent); }
+  .toggle-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; cursor: pointer; padding: 6px 0;
+  }
+  .toggle-row input { accent-color: var(--accent); width: 16px; height: 16px; }
 </style>
