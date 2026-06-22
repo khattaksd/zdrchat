@@ -8,15 +8,8 @@
   import Sidebar from "$lib/components/Sidebar.svelte";
   import StatusBar from "$lib/components/StatusBar.svelte";
   import WelcomeOverlay from "$lib/components/WelcomeOverlay.svelte";
+  import { db, uid, now, createConversation, getConversationMessages, getSetting, setSetting, addMessage, deleteConversation as deleteConversationDb } from "$lib/db/dexie";
   import type { Message } from "$lib/db/dexie";
-  import {
-    addMessage,
-    createConversation,
-    db,
-    getConversationMessages,
-    getSetting,
-    setSetting,
-  } from "$lib/db/dexie";
   import { chat } from "$lib/store/chat.svelte.ts";
   import { settings } from "$lib/store/settings.svelte.ts";
   import { status } from "$lib/store/status.svelte.ts";
@@ -250,6 +243,14 @@
     status.sessionCost = 0;
   }
 
+  async function handleDeleteConversation(id: string) {
+    await deleteConversationDb(id);
+    chat.conversations = chat.conversations.filter(c => c.id !== id);
+    if (chat.activeConversationId === id) {
+      newConversation();
+    }
+  }
+
   function applyTheme(theme: string) {
     document.documentElement.setAttribute("data-theme", theme);
   }
@@ -372,6 +373,7 @@
           activeId={chat.activeConversationId}
           onSelect={selectConversation}
           onNew={newConversation}
+          onDelete={handleDeleteConversation}
         />
       </div>
 
