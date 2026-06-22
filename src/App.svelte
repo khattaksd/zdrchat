@@ -25,7 +25,7 @@
   let client: OpenRouterClient | null = null;
   let inputText = $state("");
 
-  let showSidebar = $state(true);
+  let showSidebar = $state(window.innerWidth > 768);
   let showModelPicker = $state(false);
   let showSettings = $state(false);
   let messagesEnd: HTMLDivElement | undefined = $state();
