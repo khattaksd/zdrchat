@@ -1,19 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { chatStore } from './lib/store/chat';
-  import { settingsStore } from './lib/store/settings';
-  import { statusStore } from './lib/store/status';
-  import { OpenRouterClient } from './lib/api/openrouter';
-  import { db, createConversation, addMessage, getConversationMessages, getSetting, setSetting } from './lib/db/dexie';
-  import type { Conversation, Message } from './lib/db/dexie';
-  import type { Model } from './lib/api/types';
-  import { MODEL_BUCKETS } from './lib/api/types';
-  import StatusBar from './lib/components/StatusBar.svelte';
-  import Sidebar from './lib/components/Sidebar.svelte';
-  import ModelPicker from './lib/components/ModelPicker.svelte';
-  import SettingsPanel from './lib/components/SettingsPanel.svelte';
-  import MaskedInput from './lib/components/MaskedInput.svelte';
+  import { chatStore } from '$lib/store/chat';
+  import { settingsStore } from '$lib/store/settings';
+  import { statusStore } from '$lib/store/status';
+  import { OpenRouterClient } from '$lib/api/openrouter';
+  import { db, createConversation, addMessage, getConversationMessages, getSetting, setSetting } from '$lib/db/dexie';
+  import type { Conversation, Message } from '$lib/db/dexie';
+  import type { Model } from '$lib/api/types';
+  import { MODEL_BUCKETS } from '$lib/api/types';
+  import StatusBar from '$lib/components/StatusBar.svelte';
+  import Sidebar from '$lib/components/Sidebar.svelte';
+  import ModelPicker from '$lib/components/ModelPicker.svelte';
+  import SettingsPanel from '$lib/components/SettingsPanel.svelte';
+  import MaskedInput from '$lib/components/MaskedInput.svelte';
 
   // Reactive: $chatStore etc auto-subscribe in templates
   // For imperative reads in script, use get() or local $state mirrors

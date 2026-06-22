@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { Conversation, Message } from '../db/dexie';
+import type { Conversation, Message } from '$lib/db/dexie';
 
 export interface ChatState {
   conversations: Conversation[];

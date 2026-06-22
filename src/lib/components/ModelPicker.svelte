@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Model } from '../api/types';
-  import { MODEL_BUCKETS } from '../api/types';
+  import type { Model } from '$lib/api/types';
+  import { MODEL_BUCKETS } from '$lib/api/types';
 
   let {
     models = [] as Model[],
