@@ -18,9 +18,8 @@
   --error-bg: rgba(239, 68, 68, 0.1);
   --error-border: rgba(239, 68, 68, 0.3);
   --error: #ef4444;
+  --reasoning-bg: #1a1a2e;
 }
-
-/* ── Theme Variants ──────────────────────────────────── */
 
 [data-theme="light"] {
   --accent: #2563eb;
@@ -37,6 +36,7 @@
   --error-bg: rgba(239, 68, 68, 0.05);
   --error-border: rgba(239, 68, 68, 0.2);
   --error: #dc2626;
+  --reasoning-bg: #eef2ff;
 }
 
 [data-theme="sepia"] {
@@ -54,6 +54,7 @@
   --error-bg: rgba(220, 38, 38, 0.1);
   --error-border: rgba(220, 38, 38, 0.3);
   --error: #dc2626;
+  --reasoning-bg: #fef9c3;
 }
 
 [data-theme="nord"] {
@@ -71,6 +72,7 @@
   --error-bg: rgba(191, 97, 106, 0.1);
   --error-border: rgba(191, 97, 106, 0.3);
   --error: #bf616a;
+  --reasoning-bg: #3b4252;
 }
 
 [data-theme="catppuccin"] {
@@ -88,6 +90,7 @@
   --error-bg: rgba(243, 139, 168, 0.1);
   --error-border: rgba(243, 139, 168, 0.3);
   --error: #f38ba8;
+  --reasoning-bg: #1e1e2e;
 }
 
 [data-theme="tokyo-night"] {
@@ -105,6 +108,7 @@
   --error-bg: rgba(247, 118, 142, 0.1);
   --error-border: rgba(247, 118, 142, 0.3);
   --error: #f7768e;
+  --reasoning-bg: #1f2335;
 }
 
 /* ── Density Variants (font size & spacing) ──────────── */

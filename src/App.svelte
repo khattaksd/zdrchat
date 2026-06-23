@@ -163,7 +163,9 @@
 
       chat.isStreaming = true;
       chat.streamingContent = "";
+      chat.streamingReasoning = "";
       let fullContent = "";
+      let fullReasoning = "";
       let lastTokensIn = 0;
       let lastTokensOut = 0;
       let lastCost = 0;
@@ -179,6 +181,11 @@
         for await (const chunk of stream) {
           fullContent += chunk.content;
           chat.streamingContent += chunk.content;
+
+          if (chunk.reasoning) {
+            fullReasoning += chunk.reasoning;
+            chat.streamingReasoning += chunk.reasoning;
+          }
 
           if (chunk.done && chunk.usage) {
             lastTokensIn = chunk.usage.prompt_tokens;
@@ -202,6 +209,7 @@
         conversationId: convId,
         role: "assistant",
         content: fullContent || "(no response)",
+        reasoning: fullReasoning || undefined,
         modelId: settings.defaultModel,
         tokensIn: lastTokensIn || undefined,
         tokensOut: lastTokensOut || undefined,
@@ -209,6 +217,7 @@
       });
       chat.messages = [...chat.messages, assistantMsg];
       chat.streamingContent = "";
+      chat.streamingReasoning = "";
 
       if (allMsgs.length <= 1) {
         const title = text.length > 60 ? text.slice(0, 57) + "..." : text;
@@ -245,6 +254,7 @@
     chat.activeConversationId = null;
     chat.messages = [];
     chat.streamingContent = "";
+    chat.streamingReasoning = "";
     chat.error = null;
     status.sessionTokensIn = 0;
     status.sessionTokensOut = 0;
