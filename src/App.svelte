@@ -367,18 +367,15 @@
       </div>
     </header>
 
-    <div class="layout">
-      <!-- Main content -->
-      <main class="main-content">
-        <ChatArea
-          bind:inputText
-          bind:messagesEnd
-          bind:inputEl
-          handleSend={sendMessage}
-          {handleKeydown}
-        />
-      </main>
-    </div>
+    <main class="main-content">
+      <ChatArea
+        bind:inputText
+        bind:messagesEnd
+        bind:inputEl
+        handleSend={sendMessage}
+        {handleKeydown}
+      />
+    </main>
 
     <!-- Status Bar -->
     <StatusBar
@@ -461,7 +458,7 @@
   .app-shell {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     background: var(--bg);
     color: var(--text);
   }
@@ -534,17 +531,22 @@
     background: var(--surface);
   }
 
-  .layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-
   .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    position: relative;
+    min-height: 0;
+  }
+
+  @media (max-width: 480px) {
+    .header {
+      padding: 4px 10px;
+      height: 44px;
+    }
+    .btn-icon {
+      padding: 4px;
+      font-size: 16px;
+    }
   }
 </style>
