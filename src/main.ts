@@ -7,9 +7,12 @@ import { registerSW } from 'virtual:pwa-register'
 registerSW({
   onRegistered(registration) {
     if (registration) {
+      console.log('[PWA] SW registered, polling every 30s for updates')
       setInterval(() => {
         registration.update()
       }, 30_000)
+    } else {
+      console.log('[PWA] SW registration not available')
     }
   },
   onOfflineReady() {
