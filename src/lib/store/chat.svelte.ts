@@ -6,6 +6,8 @@ interface ChatState {
   messages: Message[];
   isStreaming: boolean;
   streamingContent: string;
+  /** Reasoning text being streamed from reasoning models */
+  streamingReasoning: string;
   error: string | null;
 }
 
@@ -15,5 +17,6 @@ export const chat = $state<ChatState>({
   messages: [],
   isStreaming: false,
   streamingContent: '',
+  streamingReasoning: '',
   error: null,
 });

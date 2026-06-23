@@ -16,6 +16,8 @@ export interface Message {
   conversationId: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
+  /** Reasoning/thinking content from reasoning models (e.g. DeepSeek R1) */
+  reasoning?: string;
   createdAt: number;
   tokensIn?: number;
   tokensOut?: number;
