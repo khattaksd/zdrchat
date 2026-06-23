@@ -5,7 +5,7 @@
   import ChatArea from "$lib/components/ChatArea.svelte";
   import ModelPicker from "$lib/components/ModelPicker.svelte";
   import SettingsPanel from "$lib/components/SettingsPanel.svelte";
-  import Sidebar from "$lib/components/Sidebar.svelte";
+  import ConversationsPanel from "$lib/components/ConversationsPanel.svelte";
   import StatusBar from "$lib/components/StatusBar.svelte";
   import WelcomeOverlay from "$lib/components/WelcomeOverlay.svelte";
   import type { Message } from "$lib/db/dexie";
@@ -13,6 +13,7 @@
     addMessage,
     createConversation,
     db,
+    deleteConversation,
     getConversationMessages,
     getSetting,
     setSetting,
@@ -25,7 +26,7 @@
   let client: OpenRouterClient | null = null;
   let inputText = $state("");
 
-  let showSidebar = $state(true);
+  let showConversations = $state(false);
   let showModelPicker = $state(false);
   let showSettings = $state(false);
   let messagesEnd: HTMLDivElement | undefined = $state();
@@ -250,6 +251,14 @@
     status.sessionCost = 0;
   }
 
+  async function handleDeleteConversation(id: string) {
+    await deleteConversation(id);
+    chat.conversations = chat.conversations.filter(c => c.id !== id);
+    if (chat.activeConversationId === id) {
+      newConversation();
+    }
+  }
+
   function applyTheme(theme: string) {
     document.documentElement.setAttribute("data-theme", theme);
   }
@@ -318,10 +327,10 @@
       <div class="header-left">
         <button
           class="btn-icon"
-          onclick={() => (showSidebar = !showSidebar)}
-          title="Toggle sidebar"
+          onclick={() => (showConversations = !showConversations)}
+          title="Conversations"
         >
-          <span class="icon">☰</span>
+          <span class="icon">💬</span>
         </button>
       </div>
 
@@ -358,28 +367,15 @@
       </div>
     </header>
 
-    <div class="layout">
-      <!-- Sidebar -->
-      <div class="sidebar-wrapper" class:collapsed={!showSidebar}>
-        <Sidebar
-          conversations={chat.conversations}
-          activeId={chat.activeConversationId}
-          onSelect={selectConversation}
-          onNew={newConversation}
-        />
-      </div>
-
-      <!-- Main content -->
-      <main class="main-content">
-        <ChatArea
-          bind:inputText
-          bind:messagesEnd
-          bind:inputEl
-          handleSend={sendMessage}
-          {handleKeydown}
-        />
-      </main>
-    </div>
+    <main class="main-content">
+      <ChatArea
+        bind:inputText
+        bind:messagesEnd
+        bind:inputEl
+        handleSend={sendMessage}
+        {handleKeydown}
+      />
+    </main>
 
     <!-- Status Bar -->
     <StatusBar
@@ -443,6 +439,18 @@
         onClose={() => (showSettings = false)}
       />
     {/if}
+
+    <!-- Conversations panel -->
+    {#if showConversations}
+      <ConversationsPanel
+        conversations={chat.conversations}
+        activeId={chat.activeConversationId}
+        onSelect={selectConversation}
+        onNew={newConversation}
+        onDelete={handleDeleteConversation}
+        onClose={() => showConversations = false}
+      />
+    {/if}
   </div>
 {/if}
 
@@ -450,7 +458,7 @@
   .app-shell {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     background: var(--bg);
     color: var(--text);
   }
@@ -507,20 +515,6 @@
     font-weight: 400;
   }
 
-  .sidebar-wrapper {
-    width: 260px;
-    overflow: hidden;
-    flex-shrink: 0;
-    height: 100%;
-    transition:
-      width 0.25s ease,
-      opacity 0.25s ease;
-  }
-  .sidebar-wrapper.collapsed {
-    width: 0;
-    opacity: 0;
-  }
-
   .btn-icon {
     background: none;
     border: none;
@@ -537,27 +531,22 @@
     background: var(--surface);
   }
 
-  .layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-
   .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    position: relative;
+    min-height: 0;
   }
 
-  @media (max-width: 768px) {
-    .sidebar-wrapper:not(.collapsed) {
-      position: fixed;
-      left: 0;
-      top: 52px;
-      bottom: 40px;
-      z-index: 20;
+  @media (max-width: 480px) {
+    .header {
+      padding: 4px 10px;
+      height: 44px;
+    }
+    .btn-icon {
+      padding: 4px;
+      font-size: 16px;
     }
   }
 </style>
