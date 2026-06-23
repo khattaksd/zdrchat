@@ -15,6 +15,12 @@
       inputEl.focus();
     }
   });
+
+  let expandedReasoning = $state<Record<string, boolean>>({});
+
+  function toggleReasoning(id: string) {
+    expandedReasoning[id] = !expandedReasoning[id];
+  }
 </script>
 
 {#if !chat.activeConversationId && chat.messages.length === 0}
@@ -32,6 +38,22 @@
       <div class="message" class:user={msg.role === 'user'} class:assistant={msg.role === 'assistant'}>
         <div class="message-avatar">{msg.role === 'user' ? '🧑' : '🤖'}</div>
         <div class="message-content">
+          {#if msg.reasoning}
+            <div class="reasoning-section">
+              <button
+                class="reasoning-toggle"
+                onclick={() => toggleReasoning(msg.id)}
+              >
+                <span class="reasoning-icon">
+                  {expandedReasoning[msg.id] ? '▼' : '▶'}
+                </span>
+                <span class="reasoning-label">{expandedReasoning[msg.id] ? 'Hide reasoning' : 'Show reasoning'}</span>
+              </button>
+              {#if expandedReasoning[msg.id]}
+                <div class="reasoning-content">{msg.reasoning}</div>
+              {/if}
+            </div>
+          {/if}
           <div class="message-text">{msg.content}</div>
           {#if msg.tokensIn}
             <div class="message-meta">{msg.tokensIn}↑ {msg.tokensOut}↓</div>
@@ -41,10 +63,28 @@
     {/each}
 
     <!-- Streaming message -->
-    {#if chat.isStreaming && chat.streamingContent}
+    {#if chat.isStreaming && (chat.streamingContent || chat.streamingReasoning)}
       <div class="message assistant">
         <div class="message-avatar">🤖</div>
         <div class="message-content">
+          {#if chat.streamingReasoning}
+            <div class="reasoning-section">
+              <button
+                class="reasoning-toggle"
+                onclick={() => toggleReasoning('streaming')}
+              >
+                <span class="reasoning-icon">
+                  {expandedReasoning['streaming'] ? '▼' : '▶'}
+                </span>
+                <span class="reasoning-label">
+                  {expandedReasoning['streaming'] ? 'Hide reasoning' : 'Show reasoning'}
+                </span>
+              </button>
+              {#if expandedReasoning['streaming']}
+                <div class="reasoning-content reasoning-streaming">{chat.streamingReasoning}<span class="cursor">|</span></div>
+              {/if}
+            </div>
+          {/if}
           <div class="message-text streaming">{chat.streamingContent}<span class="cursor">|</span></div>
         </div>
       </div>
@@ -108,6 +148,32 @@
   .message-meta { font-size: var(--font-xs); opacity: 0.5; margin-top: var(--pad-xs); }
   .streaming .cursor { animation: blink 0.8s infinite; }
   .error-text { color: var(--error); }
+
+  /* Reasoning */
+  .reasoning-section {
+    margin-bottom: var(--pad-sm);
+  }
+  .reasoning-toggle {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 2px 8px; cursor: pointer;
+    font-size: var(--font-xs); color: var(--text-secondary);
+    font-family: inherit;
+  }
+  .reasoning-toggle:hover {
+    border-color: var(--accent); color: var(--accent);
+  }
+  .reasoning-icon { font-size: 10px; }
+  .reasoning-label { font-size: var(--font-xs); }
+  .reasoning-content {
+    margin-top: var(--pad-xs); padding: var(--pad-sm);
+    background: var(--reasoning-bg); border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    font-size: var(--font-sm); line-height: 1.5;
+    white-space: pre-wrap; word-break: break-word;
+    opacity: 0.85; max-height: 300px; overflow-y: auto;
+  }
+
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 

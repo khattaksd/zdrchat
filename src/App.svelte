@@ -209,6 +209,7 @@
       });
       chat.messages = [...chat.messages, assistantMsg];
       chat.streamingContent = "";
+      chat.streamingReasoning = "";
 
       if (allMsgs.length <= 1) {
         const title = text.length > 60 ? text.slice(0, 57) + "..." : text;
@@ -245,6 +246,7 @@
     chat.activeConversationId = null;
     chat.messages = [];
     chat.streamingContent = "";
+    chat.streamingReasoning = "";
     chat.error = null;
     status.sessionTokensIn = 0;
     status.sessionTokensOut = 0;

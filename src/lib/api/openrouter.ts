@@ -71,13 +71,14 @@ export class OpenRouterClient {
    * Streaming chat completion via the official OpenRouter SDK.
    * Sends provider.zdr and dataCollection preferences per-request
    * when the corresponding flags are set in the app.
+   * Yields reasoning content from delta.reasoning (e.g. DeepSeek R1).
    */
   async *streamCompletion(params: {
     model: string;
     messages: { role: string; content: string | any[] }[];
     zdrOnly?: boolean;
     noTraining?: boolean;
-  }): AsyncGenerator<{ content: string; done: boolean; usage?: { prompt_tokens: number; completion_tokens: number; cost: number } }> {
+  }): AsyncGenerator<{ content: string; reasoning?: string; done: boolean; usage?: { prompt_tokens: number; completion_tokens: number; cost: number } }> {
     const body: any = {
       chatRequest: {
         model: params.model,
@@ -98,11 +99,13 @@ export class OpenRouterClient {
         if (!choice) continue;
 
         const delta = choice.delta?.content ?? '';
+        const reasoningDelta = choice.delta?.reasoning ?? '';
         const finishReason = choice.finishReason;
 
-        if (delta || finishReason != null) {
+        if (delta || reasoningDelta || finishReason != null) {
           yield {
             content: delta,
+            reasoning: reasoningDelta || undefined,
             done: finishReason != null,
             usage: chunk.usage ? {
               prompt_tokens: chunk.usage.promptTokens ?? 0,
