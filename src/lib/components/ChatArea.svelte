@@ -109,6 +109,13 @@
 
 <!-- Input area — always at bottom -->
 <div class="input-area">
+  <button
+    class="btn-model"
+    onclick={() => onToggleModelPicker?.()}
+    title="Change model"
+  >
+    <span class="model-icon">(··)</span>
+  </button>
   <textarea
     bind:this={inputEl}
     class="chat-input"
@@ -198,6 +205,21 @@
   }
   .chat-input:focus { outline: none; border-color: var(--accent); }
   .chat-input:disabled { opacity: 0.5; }
+  .btn-model {
+    width: 40px; height: 40px; border-radius: 10px; border: none;
+    background: color-mix(in srgb, var(--accent) 20%, var(--surface));
+    color: var(--accent); cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .btn-model:hover {
+    background: var(--accent); color: white;
+    transform: scale(1.05);
+  }
+  .model-icon {
+    font-family: monospace; font-size: 14px; font-weight: 700; line-height: 1;
+    letter-spacing: 1px;
+  }
   .btn-send {
     width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--accent);
     color: white; font-size: 18px; cursor: pointer; flex-shrink: 0; display: flex;
