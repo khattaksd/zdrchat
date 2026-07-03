@@ -38,7 +38,6 @@
   <div class="messages-area">
     {#each chat.messages as msg (msg.id)}
       <div class="message" class:user={msg.role === 'user'} class:assistant={msg.role === 'assistant'}>
-        <div class="message-avatar">{msg.role === 'user' ? '🧑' : '🤖'}</div>
         <div class="message-content">
           {#if msg.reasoning}
             <div class="reasoning-section">
@@ -47,7 +46,11 @@
                 onclick={() => toggleReasoning(msg.id)}
               >
                 <span class="reasoning-icon">
-                  {expandedReasoning[msg.id] ? '▼' : '▶'}
+                  {#if expandedReasoning[msg.id]}
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  {:else}
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  {/if}
                 </span>
                 <span class="reasoning-label">{expandedReasoning[msg.id] ? 'Hide reasoning' : 'Show reasoning'}</span>
               </button>
@@ -67,7 +70,6 @@
     <!-- Streaming message -->
     {#if chat.isStreaming && (chat.streamingContent || chat.streamingReasoning)}
       <div class="message assistant">
-        <div class="message-avatar">🤖</div>
         <div class="message-content">
           {#if chat.streamingReasoning}
             <div class="reasoning-section">
@@ -95,7 +97,6 @@
     <!-- Error -->
     {#if chat.error}
       <div class="message error">
-        <div class="message-avatar">⚠️</div>
         <div class="message-content">
           <div class="message-text error-text">{chat.error}</div>
         </div>
@@ -108,13 +109,6 @@
 
 <!-- Input area — always at bottom -->
 <div class="input-area">
-  <button
-    class="btn-model"
-    onclick={() => onToggleModelPicker?.()}
-    title="Change model"
-  >
-    <span class="model-icon">(··)</span>
-  </button>
   <textarea
     bind:this={inputEl}
     class="chat-input"
@@ -128,7 +122,11 @@
     class="btn-send"
     disabled={!inputText.trim() || chat.isStreaming}
     onclick={handleSend}
-  >➤</button>
+  >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
 </div>
 
 <style>
@@ -152,7 +150,7 @@
   .message.user { background: var(--user-msg); align-self: flex-end; }
   .message.assistant { background: var(--assistant-msg); align-self: flex-start; }
   .message.error { background: var(--error-bg); align-self: center; border: 1px solid var(--error-border); }
-  .message-avatar { font-size: 22px; flex-shrink: 0; }
+
   .message-text { font-size: var(--font-md); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
   .message-meta { font-size: var(--font-xs); opacity: 0.5; margin-top: var(--pad-xs); }
   .streaming .cursor { animation: blink 0.8s infinite; }
@@ -193,28 +191,13 @@
     background: var(--header-bg);
   }
   .chat-input {
-    flex: 1; height: 40px; padding: 8px 14px; border-radius: 10px;
+    flex: 1; min-height: 40px; max-height: 200px; padding: 8px 14px; border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--input-bg); color: var(--text); font-size: var(--font-md); resize: none;
-    font-family: inherit; line-height: 1.4;
+    font-family: inherit; line-height: 1.4; field-sizing: content;
   }
   .chat-input:focus { outline: none; border-color: var(--accent); }
   .chat-input:disabled { opacity: 0.5; }
-  .btn-model {
-    width: 40px; height: 40px; border-radius: 10px; border: none;
-    background: color-mix(in srgb, var(--accent) 20%, var(--surface));
-    color: var(--accent); cursor: pointer; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s ease;
-  }
-  .btn-model:hover {
-    background: var(--accent); color: white;
-    transform: scale(1.05);
-  }
-  .model-icon {
-    font-family: monospace; font-size: 14px; font-weight: 700; line-height: 1;
-    letter-spacing: 1px;
-  }
   .btn-send {
     width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--accent);
     color: white; font-size: 18px; cursor: pointer; flex-shrink: 0; display: flex;

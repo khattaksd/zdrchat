@@ -39,8 +39,8 @@
     const savedKey = await getSetting("apiKey", "");
     const savedTheme = await getSetting("theme", "dark");
     const savedModel = await getSetting("defaultModel", "");
-    const savedZdr = await getSetting("zdrOnly", false);
-    const savedNoTrain = await getSetting("noTraining", false);
+    const savedZdr = await getSetting("zdrOnly", true);
+    const savedNoTrain = await getSetting("noTraining", true);
     const savedDensity = await getSetting("density", "cozy");
 
     if (savedKey) settings.apiKey = savedKey;
@@ -273,31 +273,6 @@
     document.documentElement.setAttribute("data-theme", theme);
   }
 
-  function toggleTheme() {
-    const themes = [
-      "dark",
-      "light",
-      "sepia",
-      "nord",
-      "catppuccin",
-      "tokyo-night",
-    ];
-    const idx = themes.indexOf(settings.theme);
-    const next = themes[(idx + 1) % themes.length];
-    settings.theme = next as any;
-    applyTheme(next);
-    setSetting("theme", next);
-  }
-
-  function toggleDensity() {
-    const modes = ["tight", "cozy", "sparse"];
-    const idx = modes.indexOf(_density);
-    const next = modes[(idx + 1) % modes.length];
-    _density = next;
-    applyDensity(next);
-    setSetting("density", next);
-  }
-
   function applyDensity(density: string) {
     document.documentElement.setAttribute("data-density", density);
   }
@@ -335,7 +310,9 @@
           onclick={() => (showConversations = !showConversations)}
           title="Conversations"
         >
-          <span class="icon">💬</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
         </button>
       </div>
 
@@ -356,18 +333,24 @@
       <div class="header-right">
         <button
           class="btn-icon"
-          onclick={() => (showSettings = !showSettings)}
-          title="Settings">⚙️</button
+          onclick={() => (showModelPicker = !showModelPicker)}
+          title="Change model"
         >
-        <button class="btn-icon" onclick={toggleTheme} title="Toggle theme"
-          >🎨</button
-        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+            <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M20 9h3M1 15h3M20 15h3"/>
+            <path d="M9 9h6v6H9z"/>
+          </svg>
+        </button>
         <button
           class="btn-icon"
-          onclick={toggleDensity}
-          title="Density: {_density}"
+          onclick={() => (showSettings = !showSettings)}
+          title="Settings"
         >
-          {#if _density === "tight"}📏{:else if _density === "cozy"}📐{:else}📖{/if}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
         </button>
       </div>
     </header>
@@ -436,6 +419,12 @@
         onUpdateZdrOnly={(v: boolean) => {
           settings.zdrOnly = v;
           setSetting("zdrOnly", v);
+        }}
+        density={_density}
+        onUpdateDensity={(d: string) => {
+          _density = d;
+          applyDensity(d);
+          setSetting("density", d);
         }}
         onUpdateNoTraining={(v: boolean) => {
           settings.noTraining = v;
@@ -535,6 +524,8 @@
     opacity: 1;
     background: var(--surface);
   }
+
+
 
   .main-content {
     flex: 1;

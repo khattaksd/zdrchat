@@ -13,7 +13,7 @@
   --header-bg: #0f0f11;
   --sidebar-bg: #0d0d0f;
   --input-bg: #18181b;
-  --user-msg: #1e3a5f;
+  --user-msg: #1c1c1f;
   --assistant-msg: #18181b;
   --error-bg: rgba(239, 68, 68, 0.1);
   --error-border: rgba(239, 68, 68, 0.3);
@@ -31,7 +31,7 @@
   --header-bg: #fafafa;
   --sidebar-bg: #fafafa;
   --input-bg: #ffffff;
-  --user-msg: #dbeafe;
+  --user-msg: #e8e8ec;
   --assistant-msg: #f4f4f5;
   --error-bg: rgba(239, 68, 68, 0.05);
   --error-border: rgba(239, 68, 68, 0.2);
@@ -49,7 +49,7 @@
   --header-bg: #fef3c7;
   --sidebar-bg: #fef3c7;
   --input-bg: #fffbeb;
-  --user-msg: #fde68a;
+  --user-msg: #f5e6b8;
   --assistant-msg: #fef9c3;
   --error-bg: rgba(220, 38, 38, 0.1);
   --error-border: rgba(220, 38, 38, 0.3);

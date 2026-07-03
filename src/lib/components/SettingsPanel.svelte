@@ -2,12 +2,14 @@
   let {
     apiKey = '',
     theme = 'dark',
+    density = 'cozy',
     creditBalance = null as number | null,
     storageInfo = {} as Record<string, any>,
     zdrOnly = false,
     noTraining = false,
     onUpdateKey = (_key: string) => {},
     onUpdateTheme = (_t: string) => {},
+    onUpdateDensity = (_d: string) => {},
     onUpdateZdrOnly = (_v: boolean) => {},
     onUpdateNoTraining = (_v: boolean) => {},
     onClose = (_e?: Event) => {},
@@ -38,7 +40,9 @@
 <div class="panel">
   <div class="panel-header">
     <h3>⚙️ Settings</h3>
-    <button class="close-btn" onclick={() => onClose()}>✕</button>
+    <button class="close-btn" onclick={() => onClose()}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
   </div>
 
   <div class="panel-body">
@@ -49,7 +53,9 @@
         <MaskedInput bind:value={localKey} placeholder="sk-or-v1-..." name="openrouter_key" onkeydown={(e) => { if (e.key === 'Enter') handleKeySubmit(); }} />
         <button class="btn-sm" disabled={!localKey.trim()} onclick={handleKeySubmit}>Update</button>
       </div>
-      <p class="note">🔑 Stored in your browser only. Never sent anywhere except to OpenRouter.</p>
+      <p class="note">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 1px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5M18 5l3 3-3-3z"/></svg>
+        Stored in your browser only. Never sent anywhere except to OpenRouter.</p>
     </section>
 
     <!-- Theme -->
@@ -66,16 +72,32 @@
       </div>
     </section>
 
+    <!-- Density -->
+    <section class="section">
+      <h4>Density</h4>
+      <div class="theme-grid">
+        {#each [{ value: 'tight', label: '📏 Tight' }, { value: 'cozy', label: '📐 Cozy' }, { value: 'sparse', label: '📖 Sparse' }] as d}
+          <button
+            class="theme-btn"
+            class:active={density === d.value}
+            onclick={() => onUpdateDensity(d.value)}
+          >{d.label}</button>
+        {/each}
+      </div>
+    </section>
+
     <!-- Privacy -->
     <section class="section">
-      <h4>🔒 Privacy</h4>
+      <h4>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 2px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Privacy</h4>
       <label class="toggle-row">
         <input type="checkbox" checked={zdrOnly} onchange={(e) => onUpdateZdrOnly((e.target as HTMLInputElement).checked)} />
         <span><strong>ZDR</strong> (Zero Data Retention) — only use models that don't store your data</span>
       </label>
       <label class="toggle-row">
         <input type="checkbox" checked={noTraining} onchange={(e) => onUpdateNoTraining((e.target as HTMLInputElement).checked)} />
-        <span><strong>ZDC</strong> (Zero Data Collection) — request-time enforcement: sends <code>dataCollection: 'deny'</code> to OpenRouter, which routes only to providers that don't train on your data</span>
+        <span><strong>ZDC</strong> (Zero Data Collection) — only use providers that don't train on your data</span>
       </label>
       <p class="note" style="margin-top: 8px;">
         <strong>ZDR</strong> can pre-filter models in the picker. <strong>ZDC</strong> is enforced at request time — if no provider supports it, OpenRouter returns an error.
@@ -84,7 +106,9 @@
 
     <!-- Ethics -->
     <section class="section">
-      <h4>ℹ️ About</h4>
+      <h4>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 2px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        About</h4>
       <p class="note">
         ZDR Chat is an <strong>independent, open-source project</strong>. Not affiliated with OpenRouter.ai.
         We don't earn commissions, resell tokens, or track usage.

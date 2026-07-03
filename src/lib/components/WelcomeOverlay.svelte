@@ -36,7 +36,8 @@
     </div>
 
     <p class="welcome-key-note">
-      🔑 Your key stays in this browser. Never sent anywhere except to OpenRouter.
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 2px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5M18 5l3 3-3-3z"/></svg>
+      Your key stays in this browser. Never sent anywhere except to OpenRouter.
     </p>
     <p class="welcome-cta">
       Need a key? <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">Get one at openrouter.ai</a>
