@@ -1,23 +1,19 @@
 <script lang="ts">
   let {
-    online = true, modelName = '', tokensIn = 0, tokensOut = 0, cost = 0,
+    online = true, tokensIn = 0, tokensOut = 0, cost = 0,
     creditBalance = null as number | null,
-    onModelClick = (_e?: Event) => {},
   } = $props();
 
   let buildTime = __BUILD_TIME__;
 
-  function formatTokens(n: number): string {
-    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
-    return String(n);
-  }
+  let formatTokens = (n: number): string =>
+    n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n);
 
-  function formatCost(n: number): string {
-    if (n === 0) return '$0.00';
-    if (n < 0.0001) return '$' + n.toFixed(7);
+  let formatCost = (n: number): string => {
+    if (n === 0) return '$0';
     if (n < 0.01) return '$' + n.toFixed(6);
     return '$' + n.toFixed(4);
-  }
+  };
 
   let healthColor = $derived(online ? 'var(--accent)' : '#ef4444');
   let healthLabel = $derived(online ? 'live' : 'offline');
@@ -25,23 +21,25 @@
 
 <footer class="status-bar">
   <div class="status-left">
-    <button class="status-model" onclick={() => onModelClick()} title="Click to change model">
-      {modelName || 'No model selected'} <span class="model-chevron">▼</span>
-    </button>
-  </div>
-
-  <div class="status-center">
-    <span class="status-stat" title="Input tokens this session">↑ {formatTokens(tokensIn)}</span>
-    <span class="status-stat" title="Output tokens this session">↓ {formatTokens(tokensOut)}</span>
-    <span class="status-stat status-stat-cost" title="Estimated cost this session">{formatCost(cost)}</span>
+    <span class="stat" title="Input tokens this session">
+      <span class="stat-arrow">↑</span> {formatTokens(tokensIn)}
+    </span>
+    <span class="stat" title="Output tokens this session">
+      <span class="stat-arrow">↓</span> {formatTokens(tokensOut)}
+    </span>
+    <span class="stat stat-cost" title="Estimated cost this session">
+      {formatCost(cost)}
+    </span>
   </div>
 
   <div class="status-right">
     {#if creditBalance !== null}
-      <span class="status-credit" title="OpenRouter credit balance">${creditBalance.toFixed(2)}</span>
+      <span class="stat stat-credit" title="OpenRouter credit balance">
+        ${creditBalance.toFixed(2)}
+      </span>
     {/if}
-    <span class="status-health" style="color: {healthColor}" title="{healthLabel === 'live' ? 'Connected to OpenRouter' : 'Offline'}">
-      ● {healthLabel}
+    <span class="stat stat-health" style="color: {healthColor}" title="{healthLabel === 'live' ? 'Connected to OpenRouter' : 'Offline'}">
+      ● <span class="health-label">{healthLabel}</span>
     </span>
     <span class="status-build" title="Build time">{buildTime}</span>
   </div>
@@ -50,61 +48,56 @@
 <style>
   .status-bar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 var(--pad-lg); height: 40px; border-top: 1px solid var(--border);
-    background: var(--header-bg); font-size: var(--font-base); flex-shrink: 0; gap: var(--pad-sm);
+    padding: 0 var(--pad-lg); height: 44px;
+    border-top: 1px solid var(--border);
+    background: var(--header-bg); font-size: var(--font-md);
+    flex-shrink: 0; gap: var(--pad-sm);
   }
-  .status-left, .status-center, .status-right {
-    display: flex; align-items: center; gap: var(--pad-sm);
+  .status-left, .status-right {
+    display: flex; align-items: center; gap: 4px;
   }
-  .status-left { flex: 1; }
-  .status-center { justify-content: center; flex: 1; }
-  .status-right { justify-content: flex-end; flex: 1; }
-  .status-bar > :not(:last-child)::after {
-    content: ''; display: inline-block; width: 1px; height: 16px;
-    background: var(--border); opacity: 0.5; margin-left: var(--pad-sm);
-  }
-  .status-model {
-    background: none; border: none; color: var(--text); font-family: inherit;
-    font-size: inherit; font-weight: 500; cursor: pointer;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    max-width: 220px; opacity: 0.7; padding: 2px 6px; border-radius: 4px;
-    transition: all 0.15s ease;
-  }
-  .status-model:hover { opacity: 1; background: var(--surface); transform: scale(1.1); }
-  .model-chevron { font-size: 9px; opacity: 0.5; margin-left: 2px; }
-  .status-stat {
-    opacity: 0.75; padding: 2px 6px; border-radius: 4px;
+  .status-left { flex: 1; min-width: 0; }
+  .status-right { justify-content: flex-end; flex-shrink: 0; gap: 4px; }
+
+  .stat {
+    padding: 4px 10px; border-radius: 6px;
     transition: all 0.15s ease; cursor: default; position: relative;
+    white-space: nowrap; font-weight: 500;
   }
-  .status-stat:hover {
-    opacity: 1; background: var(--surface); transform: scale(1.35); z-index: 2;
+  .stat:hover {
+    background: var(--surface); transform: scale(1.2); z-index: 2;
   }
-  .status-stat-cost {
-    color: var(--accent); font-weight: 500; opacity: 0.9;
-    padding: 2px 6px; border-radius: 4px;
-    transition: all 0.15s ease; cursor: default; position: relative;
+  .stat-arrow { opacity: 0.6; }
+  .stat-cost {
+    color: var(--accent); font-weight: 600;
   }
-  .status-stat-cost:hover {
-    background: color-mix(in srgb, var(--accent) 12%, transparent);
-    transform: scale(1.35); z-index: 2;
+  .stat-cost:hover {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
   }
-  .status-credit {
-    opacity: 0.9; color: var(--accent); font-weight: 600;
-    padding: 2px 8px; border-radius: 4px;
-    transition: all 0.15s ease; cursor: default; position: relative;
+  .stat-credit {
+    color: var(--accent); font-weight: 600;
   }
-  .status-credit:hover {
-    background: color-mix(in srgb, var(--accent) 12%, transparent);
-    transform: scale(1.35); z-index: 2;
+  .stat-credit:hover {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
   }
-  .status-health {
-    font-weight: 600; padding: 2px 6px; border-radius: 4px;
-    transition: all 0.15s ease; cursor: default; position: relative;
+  .stat-health {
+    font-weight: 600;
   }
-  .status-health:hover { background: var(--surface); transform: scale(1.35); z-index: 2; }
+  .stat-health:hover { background: var(--surface); }
+
   .status-build {
-    font-family: monospace; font-size: calc(var(--font-xs) - 1px); opacity: 0.35;
-    padding: 2px 4px; border-radius: 3px; cursor: default;
+    font-family: monospace; font-size: calc(var(--font-xs)); opacity: 0.35;
+    padding: 2px 6px; border-radius: 4px; cursor: default;
+    white-space: nowrap;
   }
   .status-build:hover { opacity: 0.7; background: var(--surface); }
+
+  @media (max-width: 640px) {
+    .status-bar { padding: 0 var(--pad-md); gap: 2px; }
+    .status-build { display: none; }
+  }
+  @media (max-width: 480px) {
+    .stat { padding: 3px 6px; }
+    .health-label { display: none; }
+  }
 </style>

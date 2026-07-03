@@ -302,11 +302,6 @@
     document.documentElement.setAttribute("data-density", density);
   }
 
-  function getModelDisplay(id: string): string {
-    const model = settings.models.find((m) => m.id === id);
-    return model?.name || id.split("/").pop() || id;
-  }
-
   function recalcSessionTotals(msgs: Message[]) {
     let inTokens = 0,
       outTokens = 0,
@@ -384,18 +379,18 @@
         bind:inputEl
         handleSend={sendMessage}
         {handleKeydown}
+        onToggleModelPicker={() => (showModelPicker = !showModelPicker)}
+        modelName={settings.defaultModel.split('/').pop()?.replace(/-/g, ' ') || ''}
       />
     </main>
 
     <!-- Status Bar -->
     <StatusBar
       online={status.isOnline}
-      modelName={getModelDisplay(settings.defaultModel)}
       tokensIn={status.sessionTokensIn}
       tokensOut={status.sessionTokensOut}
       cost={status.sessionCost}
       creditBalance={status.creditBalance}
-      onModelClick={() => (showModelPicker = !showModelPicker)}
     />
 
     <!-- Model Picker Overlay -->
