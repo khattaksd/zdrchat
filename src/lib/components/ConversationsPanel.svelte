@@ -68,12 +68,15 @@
 <div class="panel">
   <div class="panel-header">
     <h3>Conversations</h3>
-    <button class="close-btn" onclick={() => onClose()}>✕</button>
+    <button class="close-btn" onclick={() => onClose()}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
   </div>
 
   <div class="panel-body">
     <button class="new-chat-btn" onclick={() => { onNew(); onClose(); }}>
-      ✏️ New conversation
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        New conversation
     </button>
 
     <div class="search-box">
