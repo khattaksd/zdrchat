@@ -7,6 +7,8 @@
     inputEl = $bindable<HTMLTextAreaElement | undefined>(undefined),
     handleSend = undefined as (() => void) | undefined,
     handleKeydown = undefined as ((e: KeyboardEvent) => void) | undefined,
+    onToggleModelPicker = undefined as (() => void) | undefined,
+    modelName = '',
   } = $props();
 
   // Auto-focus input on mount and when starting a new conversation
@@ -27,7 +29,7 @@
   <!-- Empty state -->
   <div class="empty-state">
     <div class="empty-content">
-      <h2>Start a conversation</h2>
+      <h2>{modelName || 'a model'}</h2>
       <p>Type a message below to begin.</p>
     </div>
   </div>
@@ -106,6 +108,13 @@
 
 <!-- Input area — always at bottom -->
 <div class="input-area">
+  <button
+    class="btn-model"
+    onclick={() => onToggleModelPicker?.()}
+    title="Change model"
+  >
+    <span class="model-icon">(··)</span>
+  </button>
   <textarea
     bind:this={inputEl}
     class="chat-input"
@@ -179,16 +188,33 @@
 
   /* Input */
   .input-area {
-    display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+    border-top: 1px solid var(--border);
     background: var(--header-bg);
   }
   .chat-input {
-    flex: 1; padding: var(--pad-md); border-radius: 10px; border: 1px solid var(--border);
+    flex: 1; height: 40px; padding: 8px 14px; border-radius: 10px;
+    border: 1px solid var(--border);
     background: var(--input-bg); color: var(--text); font-size: var(--font-md); resize: none;
-    font-family: inherit; line-height: 1.4; max-height: 120px;
+    font-family: inherit; line-height: 1.4;
   }
   .chat-input:focus { outline: none; border-color: var(--accent); }
   .chat-input:disabled { opacity: 0.5; }
+  .btn-model {
+    width: 40px; height: 40px; border-radius: 10px; border: none;
+    background: color-mix(in srgb, var(--accent) 20%, var(--surface));
+    color: var(--accent); cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .btn-model:hover {
+    background: var(--accent); color: white;
+    transform: scale(1.05);
+  }
+  .model-icon {
+    font-family: monospace; font-size: 14px; font-weight: 700; line-height: 1;
+    letter-spacing: 1px;
+  }
   .btn-send {
     width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--accent);
     color: white; font-size: 18px; cursor: pointer; flex-shrink: 0; display: flex;
