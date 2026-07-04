@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { categorizeModels } from "$lib/api/models";
+
   import { OpenRouterClient } from "$lib/api/openrouter";
   import type { Model } from "$lib/api/types";
   import ChatArea from "$lib/components/ChatArea.svelte";
@@ -31,7 +31,7 @@
   let showSettings = $state(false);
   let messagesEnd: HTMLDivElement | undefined = $state();
   let inputEl: HTMLTextAreaElement | undefined = $state();
-  let modelsByBucket: Record<string, Model[]> = $state({});
+
   let _density: string = $state("cozy");
 
   onMount(async () => {
@@ -98,7 +98,7 @@
       }
 
       settings.models = models;
-      modelsByBucket = categorizeModels(models);
+      // models are stored in settings.models, deduplicated in ModelPicker
 
       if (!settings.defaultModel && models.length > 0) {
         const smartModel = models.find(
@@ -380,7 +380,6 @@
     {#if showModelPicker}
       <ModelPicker
         models={settings.models}
-        buckets={modelsByBucket}
         currentModel={settings.defaultModel}
         zdrSet={new Set(
           settings.models.filter((m) => m.hasZdrEndpoint).map((m) => m.id),
