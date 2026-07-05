@@ -11,6 +11,8 @@ interface SettingsState {
   noTraining: boolean;
   models: Model[];
   creditBalance: number | null;
+  popularModelIds: string[];
+  popularModelAsOf: string;
   isInitialized: boolean;
 }
 
@@ -23,5 +25,7 @@ export const settings = $state<SettingsState>({
   noTraining: true,
   models: [],
   creditBalance: null,
+  popularModelIds: [],
+  popularModelAsOf: '',
   isInitialized: false,
 });

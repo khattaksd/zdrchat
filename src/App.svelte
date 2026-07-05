@@ -98,7 +98,15 @@
       }
 
       settings.models = models;
-      // models are stored in settings.models, deduplicated in ModelPicker
+
+      // Fetch popular models from rankings (refresh if > 24h old)
+      const lastFetch = settings.popularModelAsOf ? new Date(settings.popularModelAsOf) : null;
+      const needsRefresh = !lastFetch || (Date.now() - lastFetch.getTime()) > 24 * 60 * 60 * 1000;
+      if (needsRefresh) {
+        const popular = await client.fetchPopularModels();
+        settings.popularModelIds = popular.ids;
+        settings.popularModelAsOf = popular.asOf;
+      }
 
       if (!settings.defaultModel && models.length > 0) {
         const smartModel = models.find(
@@ -385,6 +393,7 @@
           settings.models.filter((m) => m.hasZdrEndpoint).map((m) => m.id),
         )}
         zdrOnly={settings.zdrOnly}
+        popularModelIds={settings.popularModelIds}
         onSelect={(modelId: string) => {
           settings.defaultModel = modelId;
           const model = settings.models.find((m) => m.id === modelId);
