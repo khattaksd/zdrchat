@@ -68,6 +68,45 @@ export class OpenRouterClient {
   }
 
   /**
+   * Fetch top models by token usage from the daily rankings.
+   * Returns the model permaslugs of the top N models, deduped by family
+   * (latest version per family line), refreshed daily.
+   */
+  async fetchPopularModels(): Promise<{ ids: string[]; asOf: string }> {
+    try {
+      const today = new Date();
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const res: any = await this.sdk.datasets.getRankingsDaily({
+        startDate: sevenDaysAgo.toISOString().split('T')[0],
+        endDate: today.toISOString().split('T')[0],
+      });
+
+      const data: any[] = (res as any)?.data ?? res ?? [];
+
+      // Aggregate totalTokens per model across days
+      const tokenMap = new Map<string, number>();
+      for (const item of data) {
+        const slug: string = (item as any).modelPermaslug ?? '';
+        if (!slug || slug === 'other') continue;
+        const tokens = parseInt((item as any).totalTokens ?? '0', 10) || 0;
+        tokenMap.set(slug, (tokenMap.get(slug) ?? 0) + tokens);
+      }
+
+      // Sort by popularity descending, take top 30
+      const ranked = [...tokenMap.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 30)
+        .map(([slug]) => slug);
+
+      return { ids: ranked, asOf: today.toISOString() };
+    } catch {
+      return { ids: [], asOf: new Date().toISOString() };
+    }
+  }
+
+  /**
    * Streaming chat completion via the official OpenRouter SDK.
    * Sends provider.zdr and dataCollection preferences per-request
    * when the corresponding flags are set in the app.
