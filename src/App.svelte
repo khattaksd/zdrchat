@@ -150,6 +150,8 @@
       inputText = "";
       chat.error = null;
 
+      const isFirstTurn = chat.messages.length === 0;
+
       const userMsg = await addMessage({
         conversationId: convId,
         role: "user",
@@ -158,76 +160,10 @@
       });
       chat.messages = [...chat.messages, userMsg];
 
-      const allMsgs = await getConversationMessages(convId);
-      const apiMessages = allMsgs.map((m) => ({
-        role: m.role,
-        content: m.content,
-      }));
+      const success = await streamResponse(convId);
 
-      const conv = chat.conversations.find((c) => c.id === convId);
-      if (conv?.systemPrompt) {
-        apiMessages.unshift({ role: "system", content: conv.systemPrompt });
-      }
-
-      chat.isStreaming = true;
-      chat.streamingContent = "";
-      chat.streamingReasoning = "";
-      let fullContent = "";
-      let fullReasoning = "";
-      let lastTokensIn = 0;
-      let lastTokensOut = 0;
-      let lastCost = 0;
-
-      try {
-        const stream = client.streamCompletion({
-          model: settings.defaultModel,
-          messages: apiMessages as any,
-          zdrOnly: settings.zdrOnly || undefined,
-          noTraining: settings.noTraining || undefined,
-        });
-
-        for await (const chunk of stream) {
-          fullContent += chunk.content;
-          chat.streamingContent += chunk.content;
-
-          if (chunk.reasoning) {
-            fullReasoning += chunk.reasoning;
-            chat.streamingReasoning += chunk.reasoning;
-          }
-
-          if (chunk.done && chunk.usage) {
-            lastTokensIn = chunk.usage.prompt_tokens;
-            lastTokensOut = chunk.usage.completion_tokens;
-            lastCost = chunk.usage.cost ?? 0;
-            status.sessionTokensIn += lastTokensIn;
-            status.sessionTokensOut += lastTokensOut;
-            status.sessionCost += lastCost;
-          }
-        }
-      } catch (err: any) {
-        const rawMsg = err.message || "Stream failed";
-        chat.error = rawMsg.startsWith("ZDR_ENFORCED:")
-          ? rawMsg.replace("ZDR_ENFORCED:", "")
-          : rawMsg;
-        chat.isStreaming = false;
-        return;
-      }
-
-      const assistantMsg = await addMessage({
-        conversationId: convId,
-        role: "assistant",
-        content: fullContent || "(no response)",
-        reasoning: fullReasoning || undefined,
-        modelId: settings.defaultModel,
-        tokensIn: lastTokensIn || undefined,
-        tokensOut: lastTokensOut || undefined,
-        costUsd: lastCost || undefined,
-      });
-      chat.messages = [...chat.messages, assistantMsg];
-      chat.streamingContent = "";
-      chat.streamingReasoning = "";
-
-      if (allMsgs.length <= 1) {
+      // Set the conversation title from the first user message on a successful first turn
+      if (success && isFirstTurn) {
         const title = text.length > 60 ? text.slice(0, 57) + "..." : text;
         await db.conversations.update(convId, { title });
         chat.conversations = chat.conversations.map((c) =>
@@ -240,6 +176,96 @@
       chat.isStreaming = false;
       setTimeout(() => messagesEnd?.scrollIntoView({ behavior: "smooth" }), 50);
     }
+  }
+
+  /**
+   * Retry the last prompt without adding a duplicate user message.
+   * The failed user message is already persisted in the conversation, so we
+   * just re-stream the assistant reply against the existing history.
+   */
+  async function resend() {
+    if (!client || chat.isStreaming || !chat.activeConversationId) return;
+    await streamResponse(chat.activeConversationId);
+    setTimeout(() => messagesEnd?.scrollIntoView({ behavior: "smooth" }), 50);
+  }
+
+  /**
+   * Stream an assistant reply for the given conversation. Builds the message
+   * history from Dexie (including any already-persisted user message) and
+   * appends the assistant message on success. Returns true on success.
+   */
+  async function streamResponse(convId: string): Promise<boolean> {
+    chat.error = null;
+    chat.isStreaming = true;
+    chat.streamingContent = "";
+    chat.streamingReasoning = "";
+    let fullContent = "";
+    let fullReasoning = "";
+    let lastTokensIn = 0;
+    let lastTokensOut = 0;
+    let lastCost = 0;
+
+    const allMsgs = await getConversationMessages(convId);
+    const apiMessages = allMsgs.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    const conv = chat.conversations.find((c) => c.id === convId);
+    if (conv?.systemPrompt) {
+      apiMessages.unshift({ role: "system", content: conv.systemPrompt });
+    }
+
+    try {
+      const stream = client!.streamCompletion({
+        model: settings.defaultModel,
+        messages: apiMessages as any,
+        zdrOnly: settings.zdrOnly || undefined,
+        noTraining: settings.noTraining || undefined,
+      });
+
+      for await (const chunk of stream) {
+        fullContent += chunk.content;
+        chat.streamingContent += chunk.content;
+
+        if (chunk.reasoning) {
+          fullReasoning += chunk.reasoning;
+          chat.streamingReasoning += chunk.reasoning;
+        }
+
+        if (chunk.done && chunk.usage) {
+          lastTokensIn = chunk.usage.prompt_tokens;
+          lastTokensOut = chunk.usage.completion_tokens;
+          lastCost = chunk.usage.cost ?? 0;
+          status.sessionTokensIn += lastTokensIn;
+          status.sessionTokensOut += lastTokensOut;
+          status.sessionCost += lastCost;
+        }
+      }
+    } catch (err: any) {
+      const rawMsg = err.message || "Stream failed";
+      chat.error = rawMsg.startsWith("ZDR_ENFORCED:")
+        ? rawMsg.replace("ZDR_ENFORCED:", "")
+        : rawMsg;
+      chat.isStreaming = false;
+      return false;
+    }
+
+    const assistantMsg = await addMessage({
+      conversationId: convId,
+      role: "assistant",
+      content: fullContent || "(no response)",
+      reasoning: fullReasoning || undefined,
+      modelId: settings.defaultModel,
+      tokensIn: lastTokensIn || undefined,
+      tokensOut: lastTokensOut || undefined,
+      costUsd: lastCost || undefined,
+    });
+    chat.messages = [...chat.messages, assistantMsg];
+    chat.streamingContent = "";
+    chat.streamingReasoning = "";
+    chat.isStreaming = false;
+    return true;
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -370,6 +396,7 @@
         bind:inputEl
         handleSend={sendMessage}
         {handleKeydown}
+        onResend={resend}
         onToggleModelPicker={() => (showModelPicker = !showModelPicker)}
         modelName={settings.defaultModel.split('/').pop()?.replace(/-/g, ' ') || ''}
       />
