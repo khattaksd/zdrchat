@@ -1,5 +1,6 @@
 <script lang="ts">
   import { chat } from '$lib/store/chat.svelte.ts';
+  import { renderMarkdown } from '$lib/markdown';
 
   let {
     inputText = $bindable(''),
@@ -56,11 +57,11 @@
                 <span class="reasoning-label">{expandedReasoning[msg.id] ? 'Hide reasoning' : 'Show reasoning'}</span>
               </button>
               {#if expandedReasoning[msg.id]}
-                <div class="reasoning-content">{msg.reasoning}</div>
+                <div class="reasoning-content"><div class="markdown">{@html renderMarkdown(msg.reasoning)}</div></div>
               {/if}
             </div>
           {/if}
-          <div class="message-text">{msg.content}</div>
+          <div class="message-text"><div class="markdown">{@html renderMarkdown(msg.content)}</div></div>
           {#if msg.tokensIn}
             <div class="message-meta">{msg.tokensIn}↑ {msg.tokensOut}↓</div>
           {/if}
@@ -86,11 +87,11 @@
                 </span>
               </button>
               {#if expandedReasoning['streaming']}
-                <div class="reasoning-content reasoning-streaming">{chat.streamingReasoning}<span class="cursor">|</span></div>
+                <div class="reasoning-content reasoning-streaming"><div class="markdown">{@html renderMarkdown(chat.streamingReasoning)}</div><span class="cursor">|</span></div>
               {/if}
             </div>
           {/if}
-          <div class="message-text streaming">{chat.streamingContent}<span class="cursor">|</span></div>
+          <div class="message-text streaming"><div class="markdown">{@html renderMarkdown(chat.streamingContent)}</div><span class="cursor">|</span></div>
         </div>
       </div>
     {/if}
