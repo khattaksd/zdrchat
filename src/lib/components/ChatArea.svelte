@@ -8,6 +8,7 @@
     handleSend = undefined as (() => void) | undefined,
     handleKeydown = undefined as ((e: KeyboardEvent) => void) | undefined,
     onToggleModelPicker = undefined as (() => void) | undefined,
+    onResend = undefined as (() => void) | undefined,
     modelName = '',
   } = $props();
 
@@ -99,6 +100,15 @@
       <div class="message error">
         <div class="message-content">
           <div class="message-text error-text">{chat.error}</div>
+          {#if onResend}
+            <button class="btn-resend" onclick={() => onResend()} title="Retry the last prompt without repeating it">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+              Resend
+            </button>
+          {/if}
         </div>
       </div>
     {/if}
@@ -155,6 +165,13 @@
   .message-meta { font-size: var(--font-xs); opacity: 0.5; margin-top: var(--pad-xs); }
   .streaming .cursor { animation: blink 0.8s infinite; }
   .error-text { color: var(--error); }
+  .btn-resend {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: var(--pad-sm);
+    padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit;
+    font-size: var(--font-sm); font-weight: 500; color: var(--accent);
+    background: var(--surface); border: 1px solid var(--accent);
+  }
+  .btn-resend:hover { background: var(--accent); color: white; }
 
   /* Reasoning */
   .reasoning-section {
