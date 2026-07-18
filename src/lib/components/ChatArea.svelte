@@ -1,6 +1,7 @@
 <script lang="ts">
   import { chat } from '$lib/store/chat.svelte.ts';
   import { renderMarkdown } from '$lib/markdown';
+  import type { Message } from '$lib/db/dexie';
 
   let {
     inputText = $bindable(''),
@@ -21,9 +22,35 @@
   });
 
   let expandedReasoning = $state<Record<string, boolean>>({});
+  /** id of the message whose copy action recently succeeded (for checkmark feedback) */
+  let copiedId = $state<string | null>(null);
 
   function toggleReasoning(id: string) {
     expandedReasoning[id] = !expandedReasoning[id];
+  }
+
+  async function copyResponse(msg: Message) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(msg.content);
+      } else {
+        // Fallback for non-secure contexts
+        const ta = document.createElement('textarea');
+        ta.value = msg.content;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      copiedId = msg.id;
+      setTimeout(() => {
+        if (copiedId === msg.id) copiedId = null;
+      }, 1500);
+    } catch (e) {
+      console.error('Copy failed', e);
+    }
   }
 </script>
 
@@ -64,6 +91,22 @@
           <div class="message-text"><div class="markdown">{@html renderMarkdown(msg.content)}</div></div>
           {#if msg.tokensIn}
             <div class="message-meta">{msg.tokensIn}↑ {msg.tokensOut}↓</div>
+          {/if}
+          {#if msg.role === 'assistant'}
+            <div class="message-actions">
+              <button
+                class="copy-btn"
+                class:copied={copiedId === msg.id}
+                title={copiedId === msg.id ? 'Copied!' : 'Copy response'}
+                onclick={() => copyResponse(msg)}
+              >
+                {#if copiedId === msg.id}
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                {:else}
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                {/if}
+              </button>
+            </div>
           {/if}
         </div>
       </div>
@@ -164,6 +207,20 @@
 
   .message-text { font-size: var(--font-md); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
   .message-meta { font-size: var(--font-xs); opacity: 0.5; margin-top: var(--pad-xs); }
+
+  /* Copy action on assistant responses */
+  .message-actions {
+    display: flex; justify-content: flex-end; margin-top: var(--pad-xs);
+  }
+  .copy-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-secondary); cursor: pointer; opacity: 0.55;
+    transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .copy-btn:hover { opacity: 1; color: var(--accent); border-color: var(--accent); }
+  .copy-btn.copied { opacity: 1; color: var(--accent); border-color: var(--accent); }
   .streaming .cursor { animation: blink 0.8s infinite; }
   .error-text { color: var(--error); }
   .btn-resend {
