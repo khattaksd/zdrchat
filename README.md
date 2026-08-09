@@ -23,9 +23,9 @@ ZDR Chat is designed for privacy-conscious users who want the power of frontier 
 | Layer | Choice | Why |
 |-------|--------|-----|
 | Framework | **Svelte 5** | ~18KB gzipped total — smallest modern framework |
-| Build | **Vite 6** + **TypeScript** | Fast dev, type-safe |
+| Build | **Vite 8** + **TypeScript** | Fast dev, type-safe |
 | Styling | **Tailwind CSS v4** + **CSS custom properties** | 6 themes, 3 density modes |
-| State | **Svelte writable stores** | Simple, no deps |
+| State | **Svelte 5 runes** (`$state`) | Compiled-in, no deps |
 | Storage | **Dexie.js (IndexedDB)** | Persistent conversations, settings, messages |
 | API | **@openrouter/sdk** | Official SDK, auto-generated from OpenAPI spec |
 | PWA | **vite-plugin-pwa (Workbox)** | Offline support, installable |
@@ -78,14 +78,12 @@ npx vite build
 
 ## Deployment
 
-ZDR Chat is designed to be deployed as a static site on Cloudflare Pages:
+Deployed as a static PWA on **Cloudflare Pages** via Git integration — pushing to `main` auto-deploys `app.zdr.chat` (no `wrangler`, no CI files):
 
-- **Root domain**: `zdr.chat` — landing page
+- **Root domain**: `zdr.chat` — landing page (Astro)
 - **App**: `app.zdr.chat` — the PWA
 
-```bash
-npx wrangler pages deploy dist/ --project-name zdrchat
-```
+Cloudflare is both DNS and Pages host; the app is fully client-side and needs no environment variables or secrets.
 
 ## License
 
