@@ -23,6 +23,9 @@ Cloudflare is both the **authoritative DNS** and the **Pages host**. There is no
 - Build command: `npm run build`
 - Output directory: `dist/`
 - Node: latest LTS
+- **Build watch paths**: Include `*`, Exclude `*.md, docs/*`.
+
+  Doc-only changes (`AGENTS.md`, `README.md`, `docs/**`) do **not** trigger deploys — they're excluded from build triggers (the two unlabeled inputs under *Settings → Build → Build watch paths*: top = include, bottom = exclude). Code changes still deploy. No negation syntax exists in this feature; it's purely include/exclude lists.
 
 ## Rollback
 

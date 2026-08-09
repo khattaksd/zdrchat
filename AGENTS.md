@@ -37,13 +37,11 @@ Push to GitHub → Cloudflare Pages auto-deploys. **`main` → production** (app
 | `lib/api/dedup.ts` | Model dedup by family; grouping (`flagship`/`fast`/`specialized`/`all`); popular-model ranking |
 | `lib/db/dexie.ts` | Dexie schema (`conversations`, `messages`, `attachments`, `settings`) + `uid()`/`now()` + CRUD helpers |
 | `lib/markdown.ts` | marked + DOMPurify + highlight.js renderer → safe `{@html}` |
-| `lib/export.ts` | Export a conversation to a `.md` file client-side (`buildConversationMarkdown` + `downloadConversationAsMarkdown`) — used by the chat header button and the per-conversation download in the panel |
+| `lib/export.ts` | Client-side `.md` export of a conversation (`buildConversationMarkdown` + `downloadConversationAsMarkdown`) |
 | `lib/store/chat.svelte.ts` | Rune state: conversations, activeConversationId, messages, isStreaming, streamingContent, streamingReasoning, error |
 | `lib/store/settings.svelte.ts` | Rune state: apiKey, defaultModel, theme, accentColor, zdrOnly, noTraining, models, popularModelIds, isInitialized |
 | `lib/store/status.svelte.ts` | Rune state: currentModel, session tokens/cost, connectionStatus, creditBalance, isOnline |
 | `lib/components/*.svelte` | ChatArea, ConversationsPanel, ModelPicker, SettingsPanel, MaskedInput, Sidebar, StatusBar, WelcomeOverlay |
-
-> **Attach (`.txt`/`.md` only):** ChatArea has a paperclip attach button. It reads the file as text, shows a confirm modal (filename/size/preview, warns if ≥ 50 KB, rejects > 1 MB), and on confirm pastes the contents into the input as a labelled fenced code block. The text becomes part of the user message — no `attachments` DB writes, no base64/multimodal. Multi-modal and PDF/doc are future considerations (would use the OpenRouter Files API).
 | `app.css` | Themes via `[data-theme]` (dark default + light/sepia/nord/catppuccin/tokyo-night) + densities `[data-density]` (tight/cozy/sparse) |
 
 Note: the model catalog is **fetched live** from OpenRouter and deduped/grouped by `dedup.ts` — models are never hardcoded.
