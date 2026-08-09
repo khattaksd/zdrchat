@@ -37,6 +37,7 @@ Push to GitHub → Cloudflare Pages auto-deploys. **`main` → production** (app
 | `lib/api/dedup.ts` | Model dedup by family; grouping (`flagship`/`fast`/`specialized`/`all`); popular-model ranking |
 | `lib/db/dexie.ts` | Dexie schema (`conversations`, `messages`, `attachments`, `settings`) + `uid()`/`now()` + CRUD helpers |
 | `lib/markdown.ts` | marked + DOMPurify + highlight.js renderer → safe `{@html}` |
+| `lib/export.ts` | Export a conversation to a `.md` file client-side (`buildConversationMarkdown` + `downloadConversationAsMarkdown`) — used by the chat header button and the per-conversation download in the panel |
 | `lib/store/chat.svelte.ts` | Rune state: conversations, activeConversationId, messages, isStreaming, streamingContent, streamingReasoning, error |
 | `lib/store/settings.svelte.ts` | Rune state: apiKey, defaultModel, theme, accentColor, zdrOnly, noTraining, models, popularModelIds, isInitialized |
 | `lib/store/status.svelte.ts` | Rune state: currentModel, session tokens/cost, connectionStatus, creditBalance, isOnline |
@@ -53,4 +54,4 @@ Note: the model catalog is **fetched live** from OpenRouter and deduped/grouped 
 
 ## Adjacent project
 
-Landing page (zdr.chat, Astro, Cloudflare Pages) lives in `~/code/zdrchat-landing`.
+Landing page (zdr.chat, Astro, Cloudflare Pages) lives in `../zdrchat-landing`.

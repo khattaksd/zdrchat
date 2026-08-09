@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Conversation } from '$lib/db/dexie';
+  import { downloadConversationAsMarkdown } from '$lib/export';
 
   let {
     conversations = [] as Conversation[],
@@ -9,6 +10,23 @@
     onDelete = (_id: string) => {},
     onClose = (_e?: Event) => {},
   } = $props();
+
+  let downloadingId = $state<string | null>(null);
+
+  async function downloadConversation(e: Event, conv: Conversation) {
+    e.stopPropagation();
+    if (downloadingId) return;
+    downloadingId = conv.id;
+    try {
+      await downloadConversationAsMarkdown(conv);
+      setTimeout(() => {
+        if (downloadingId === conv.id) downloadingId = null;
+      }, 800);
+    } catch (err) {
+      console.error('Download failed', err);
+      downloadingId = null;
+    }
+  }
 
   let searchQuery = $state('');
   let filtered = $derived(
@@ -111,6 +129,20 @@
               </div>
             {:else}
               <span
+                class="download-btn"
+                role="button"
+                tabindex="0"
+                onclick={(e) => downloadConversation(e, conv)}
+                onkeydown={(e) => { if (e.key === 'Enter') downloadConversation(e, conv); }}
+                title={downloadingId === conv.id ? 'Downloading…' : 'Download as .md'}
+              >
+                {#if downloadingId === conv.id}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                {:else}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+                {/if}
+              </span>
+              <span
                 class="delete-btn"
                 role="button"
                 tabindex="0"
@@ -180,12 +212,13 @@
   .conv-item.active { background: color-mix(in srgb, var(--accent) 15%, transparent); }
   .conv-title { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
 
-  .delete-btn {
+  .download-btn, .delete-btn {
     display: none; background: none; border: none; cursor: pointer;
     padding: 4px; border-radius: 4px; color: var(--text); opacity: 0.4;
     flex-shrink: 0; line-height: 1;
   }
-  .conv-item:hover .delete-btn { display: flex; align-items: center; }
+  .conv-item:hover .download-btn, .conv-item:hover .delete-btn { display: flex; align-items: center; }
+  .download-btn:hover { opacity: 1; background: var(--surface); color: var(--accent); }
   .delete-btn:hover { opacity: 1; background: var(--surface); color: #ef4444; }
 
   .delete-overlay {

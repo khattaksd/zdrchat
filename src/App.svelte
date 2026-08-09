@@ -21,6 +21,7 @@
   import { chat } from "$lib/store/chat.svelte.ts";
   import { settings } from "$lib/store/settings.svelte.ts";
   import { status } from "$lib/store/status.svelte.ts";
+  import { downloadConversationAsMarkdown } from "$lib/export";
   import { onMount } from "svelte";
 
   let client: OpenRouterClient | null = null;
@@ -33,6 +34,7 @@
   let inputEl: HTMLTextAreaElement | undefined = $state();
 
   let _density: string = $state("cozy");
+  let isDownloading = $state(false);
 
   onMount(async () => {
     // Load persisted settings
@@ -330,6 +332,22 @@
     setSetting("apiKey", key);
     initClient(key);
   }
+
+  async function downloadActiveConversation() {
+    if (isDownloading || !chat.activeConversationId) return;
+    const conv = chat.conversations.find(
+      (c) => c.id === chat.activeConversationId,
+    );
+    if (!conv) return;
+    isDownloading = true;
+    try {
+      await downloadConversationAsMarkdown(conv);
+    } catch (err) {
+      console.error("Download failed", err);
+    } finally {
+      isDownloading = false;
+    }
+  }
 </script>
 
 {#if !settings.apiKey}
@@ -347,6 +365,18 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
+        </button>
+        <button
+          class="btn-icon"
+          disabled={!chat.activeConversationId || isDownloading}
+          onclick={downloadActiveConversation}
+          title="Download conversation as .md"
+        >
+          {#if isDownloading}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          {:else}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+          {/if}
         </button>
       </div>
 
@@ -558,6 +588,13 @@
   .btn-icon:hover {
     opacity: 1;
     background: var(--surface);
+  }
+  .btn-icon:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .btn-icon:disabled:hover {
+    background: none;
   }
 
 
