@@ -2,6 +2,8 @@
 
 export interface Model {
   id: string;
+  /** Unix timestamp of when the model snapshot was created */
+  created?: number;
   name?: string;
   description?: string;
   contextLength?: number;

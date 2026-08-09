@@ -86,7 +86,7 @@
 <div class="panel">
   <div class="panel-header">
     <h3>Conversations</h3>
-    <button class="close-btn" onclick={() => onClose()}>
+    <button class="close-btn" onclick={() => onClose()} aria-label="Close">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
   </div>
@@ -198,7 +198,6 @@
   }
   .search-input:focus { outline: none; border-color: var(--accent); }
 
-  .conv-list {}
   .group-label {
     font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
     padding: 8px 4px 2px; opacity: 0.4;
